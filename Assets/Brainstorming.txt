@@ -1,0 +1,49 @@
+DOOR GAME
+
+Premise
+- First person
+- Like hotline miami where you can fuck people up with doors
+- Left click: Kick down a door
+- Right click: Rip door off hinges and use it as a melee weapon (but breaks after a few swings)
+
+Game progression
+- Roguelike-ish, split up into rooms separated by doors
+- Rooms are prefabs like binding of isaac
+- Enemies spawn with rooms and can follow you through them (navmesh)
+- Cleared rooms won't appear again if you backtrack: It instead spawns a new room
+- Try and rack up as many points as possible
+- 3-heart health system (not sure if ways to regen health should exist)
+
+Concerns
+- Hard to deal with enemies once in a room if you miss your chance when you kick down the door
+- AI might be tricky given time constraints
+
+Ideas
+- Glass walls inside rooms to let you know when enemies are near a door
+- Random doors attached to walls without doorframes - you can knock them back and forth like a punching bag
+   - Pair that with springs to have a door knock back and forth in a bap bap motion
+- Doors close automatically if left alone for a while - unloads previous room
+- Prison cell doors so you can see through them
+- Varied doors could spice things up: Heavier ones could deal more damage
+- "THE SLAMMER"
+879
+Required mechanics:
+- Player controller
+- Enemy prefab (just one)
+- Door class
+- Game manager / room spawn handler
+- Score system: Factors in time + way you kill enemies
+- Postgame leaderboard
+
+
+
+
+Left mouse: Kick door open
+If door is already open: Left mouse slams it instead
+Right mouse: Rip door off hinges
+
+
+
+
+
+
