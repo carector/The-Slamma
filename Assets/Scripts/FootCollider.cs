@@ -68,7 +68,7 @@ public class FootCollider : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag != "NoWalk" && other.tag != "Enemy" && other.tag != "Door" && other.tag != "Player")
+        if (other.tag != "NoWalk" && other.tag != "Enemy" && other.tag != "Door" && other.tag != "Player" && other.tag != "Room")
             cols.Add(other);
     }
     private void OnTriggerExit(Collider other)

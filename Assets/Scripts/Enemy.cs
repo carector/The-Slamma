@@ -29,6 +29,7 @@ public class Enemy : MonoBehaviour
     public int currentHealth;
     public GameObject grave;
 
+    protected AudioSource audio;
     protected Animator anim;
     protected NavMeshAgent nav;
     protected SpriteRenderer spr;
@@ -43,22 +44,13 @@ public class Enemy : MonoBehaviour
     }
     protected void GetReferences()
     {
+        audio = GetComponent<AudioSource>();
         anim = GetComponentInChildren<Animator>();
         nav = GetComponent<NavMeshAgent>();
         spr = GetComponentInChildren<SpriteRenderer>();
         ply = FindObjectOfType<PlayerController>();
         sprDir = GetComponentInChildren<SpriteDirectionalManager>();
         rb = GetComponent<Rigidbody>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (!states.dying && LineOfSightOnPlayer())
-            NavmeshMoveTowards(ply.transform);
-
-        if (Vector3.Distance(transform.position, ply.transform.position) < 1.5f && !ply.states.takingDamage)
-            ply.TakeDamage();
     }
 
     public bool TakeDamagePrereqs()
@@ -83,12 +75,17 @@ public class Enemy : MonoBehaviour
 
     protected virtual bool LineOfSightOnPlayer()
     {
-
         bool visible = false;
         RaycastHit hit;
-        if(Physics.Raycast(transform.position, (ply.transform.position - transform.position).normalized, out hit, 20))
+        if (Physics.Raycast(transform.position, (ply.transform.position - transform.position).normalized, out hit, 20, ~(1 << 9)))
+        {
+            print(hit.transform.name);
             if (hit.transform.tag == "Player")
+            {
                 visible = true;
+                print("ayez");
+            }
+        }
         return visible;
     }
 
@@ -99,10 +96,10 @@ public class Enemy : MonoBehaviour
         nav.enabled = false;
         rb.isKinematic = false;
         rb.velocity = velocity;
-        while(rb.velocity.magnitude > 1)
+        while (rb.velocity.magnitude > 1)
             yield return null;
         yield return new WaitForSeconds(0.5f);
-        Instantiate(grave, transform.GetChild(0).position+Vector3.up*0.25f, Quaternion.identity);
+        Instantiate(grave, transform.GetChild(0).position + Vector3.up * 0.25f, Quaternion.identity);
         Destroy(this.gameObject);
     }
 

@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     public class PlayerMovementSettings
     {
         public float walkSpeed = 10;
-        public float runSpeed = 13;
+        public float holdingDoorSpeed;
         public float referenceGravity = 6;
         public float maxVelocityChange = 10;
         public float mouseSensitivity = 3;
@@ -62,10 +62,11 @@ public class PlayerController : MonoBehaviour
     GameManager gm;
     Animator camAnimations;
     Animator legAnimations;
+    Animator camTiltAnimations;
 
     float xAxisClamp;
     bool swinging;
-
+    bool lastGroundedState;
 
     // Start is called before the first frame update
     void Start()
@@ -77,6 +78,7 @@ public class PlayerController : MonoBehaviour
         foot = FindObjectOfType<FootCollider>();
         camHolder = transform.GetChild(0);
         camAnimations = camHolder.transform.GetChild(0).GetComponent<Animator>();
+        camTiltAnimations = camAnimations.transform.GetChild(0).GetComponent<Animator>();
         gm.globalCameraReference = camHolder;
         inputs = new PlayerInputValues();
     }
@@ -93,6 +95,7 @@ public class PlayerController : MonoBehaviour
         // Get ground hit data from foot collider
         GetGroundHitData();
         UpdateInputAxes();
+        TipBubbleRaycast();
     }
 
     // Obtain input values
@@ -110,14 +113,17 @@ public class PlayerController : MonoBehaviour
         if (!states.canMove)
             return;
 
+        if (Input.GetKeyDown(KeyCode.Space) && states.isGrounded)
+            rb.velocity = new Vector3(rb.velocity.x, 25, rb.velocity.y);
+
         if (Input.GetMouseButtonDown(0))
         {
             if (!holdingDoor)
             {
+                legAnimations.Play("Kick");
                 DoorScript d = CheckForDoorRaycast();
                 if (d != null)
                 {
-                    legAnimations.Play("Kick");
                     audio.PlayOneShot(sfx[UnityEngine.Random.Range(0, 3)]);
                     if (!d.opened)
                         d.KickOpenDoor();
@@ -135,20 +141,26 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetMouseButtonDown(1))
         {
             DoorScript d = CheckForDoorRaycast();
-            if (d != null && !holdingDoor)
+            if (d != null && d.canBeGrabbed && !holdingDoor)
             {
                 audio.PlayOneShot(sfx[UnityEngine.Random.Range(0, 3)]);
                 camAnimations.Play("CameraDoorIdle", 0, 0);
                 doorCharges = 3;
-                Destroy(d.transform.parent.gameObject);
+                if (!d.opened)
+                    d.KickOpenDoor();
+                d.DeleteDoor();
                 holdingDoor = true;
             }
         }
 
-        if(doorCharges == 0 && holdingDoor)
+        if (holdingDoor)
         {
-            holdingDoor = false;
-            camAnimations.Play("CameraIdle", 0, 0);
+            camAnimations.SetBool("Blocking", Input.GetMouseButton(1));
+            if (doorCharges == 0)
+            {
+                holdingDoor = false;
+                camAnimations.Play("CameraIdle", 0, 0);
+            }
         }
 
     }
@@ -169,10 +181,15 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage()
     {
         gm.ScreenShake();
-        health--;
-        if(health == 0)
+        if (holdingDoor && camAnimations.GetBool("Blocking"))
+            doorCharges--;
+        else
         {
-            StartCoroutine(DieCoroutine());
+            health--;
+            if (health == 0)
+            {
+                StartCoroutine(DieCoroutine());
+            }
         }
         StartCoroutine(TakeDamageCoroutine());
     }
@@ -206,13 +223,15 @@ public class PlayerController : MonoBehaviour
             else
                 d.SlamDoor();
         }
-        rb.velocity = transform.forward * 100;
+
         RaycastHit[] hits;
-        hits = Physics.SphereCastAll(camHolder.position, 0.5f, camHolder.forward, 6);
+        hits = Physics.SphereCastAll(camHolder.position, 0.5f, camHolder.forward, 3);
         foreach (RaycastHit hit in hits)
         {
             if (hit.transform.tag == "Enemy")
                 hit.transform.GetComponent<Enemy>().GetHitByAttack((hit.transform.position - transform.position).normalized*50);
+            if(hit.transform.tag == "Ground")
+                rb.velocity = (Vector3.up * 0.1f + -camHolder.transform.forward).normalized * 30;
         }
     }
 
@@ -239,6 +258,17 @@ public class PlayerController : MonoBehaviour
         MouseLook(lookHoriz, lookVert);
     }
 
+    void TipBubbleRaycast()
+    {
+        Debug.DrawRay(camHolder.transform.position, camHolder.transform.forward, Color.red);
+        RaycastHit[] hits = Physics.SphereCastAll(camHolder.transform.position, 1f, camHolder.transform.forward);
+        foreach(RaycastHit hit in hits)
+        {
+            if (hit.transform.tag == "BubbleDisplayer")
+                gm.DisplayTipBubble(hit.point, hit.transform);
+        }
+    }
+
     void MovePlayer(float horiz, float vert)
     {
         if (!states.canMove)
@@ -252,7 +282,10 @@ public class PlayerController : MonoBehaviour
 
         if (states.isGrounded)
         {
-            dir *= movement.walkSpeed;
+            if (holdingDoor)
+                dir *= movement.holdingDoorSpeed;
+            else
+                dir *= movement.walkSpeed;
 
             // Apply force that attempts to reach our target (input) velocity
             // Slow velocity down rather than snapping to max speed
@@ -283,6 +316,12 @@ public class PlayerController : MonoBehaviour
         if (!states.canMove)
             return;
 
+        // Tilt camera based on strafe inputs
+        //print(transform.InverseTransformDirection(rb.velocity).x);
+        //float tiltAngle = Mathf.Sign(transform.InverseTransformDirection(rb.velocity).x);
+        //camTiltAnimations.SetFloat("Tilt", tiltAngle);
+        //camTiltAnimations.SetBool("NoTilt", !states.isGrounded || Mathf.Abs(transform.InverseTransformDirection(rb.velocity).x) <= 0.1f);
+            
         // Multiply mouse positions by mouse sensitivity
         float rotAmountX = lookX * movement.mouseSensitivity;
         float rotAmountY = lookY * movement.mouseSensitivity;
@@ -318,7 +357,10 @@ public class PlayerController : MonoBehaviour
 
     void GetGroundHitData()
     {
+        lastGroundedState = states.isGrounded;
         hitData = foot.hitData;
         states.isGrounded = hitData.isGrounded;
+        //if (states.isGrounded != lastGroundedState && states.isGrounded)
+            //camTiltAnimations.Play("CameraTiltGrounded");
     }
 }

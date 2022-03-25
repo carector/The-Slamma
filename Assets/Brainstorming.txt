@@ -26,7 +26,25 @@ Ideas
 - Prison cell doors so you can see through them
 - Varied doors could spice things up: Heavier ones could deal more damage
 - "THE SLAMMER"
-879
+
+
+POSTJAM IDEAS
+
+- Two enemy types: Guards and prisoners
+	- Prisoners are fodder enemies, pretty easy to deal with
+	- Guards have guns and demand more attention
+	- If you deliberately free prisoners they'll focus on fighting guards they see before fighting you
+
+- Held door features
+	- Holding right mouse will hold door as shield: Protects punches and bullets
+	- Slamming door knocks you BACK instead of forwards - can be used to cross gaps as well
+
+- Kick door features
+	- After door has been opened: Hold lmb to pull door towards you, release to launch
+
+- Escaping the prison
+	- Clear enough rooms and you'll eventually make your way outside
+
 Required mechanics:
 - Player controller
 - Enemy prefab (just one)

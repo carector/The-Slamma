@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Door
   - Enemy
+  - Room
+  - BubbleDisplayer
+  - Ground
   layers:
   - Default
   - TransparentFX
