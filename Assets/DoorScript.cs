@@ -7,6 +7,7 @@ public class DoorScript : MonoBehaviour
     public bool opened;
     public bool canBeGrabbed;
     public bool lethal;
+    public bool locked;
     public float bounciness = 0.35f;
 
     float lethalTimer = 0;
@@ -38,6 +39,12 @@ public class DoorScript : MonoBehaviour
         }
     }
 
+    public void RotateTowardsShutPosition(Vector3 point)
+    {
+        Vector3 dir = point - (transform.position + transform.right);
+        rb.velocity = Vector3.Lerp(rb.velocity, dir * 7.5f, 1f);
+    }
+
     public void ResetDoor() // Resets to pre-kicked-down state
     {
         rb.isKinematic = true;
@@ -56,6 +63,9 @@ public class DoorScript : MonoBehaviour
 
     public void KickOpenDoor()
     {
+        if (locked)
+            return;
+
         if (!canBeGrabbed)
             gm.EnterNewRoom(transform);
         rb.isKinematic = false;
@@ -71,8 +81,8 @@ public class DoorScript : MonoBehaviour
         if (neg)
             sign = -1;
         //rb.angularVelocity = transform.up * 100 * -sign;
-        rb.velocity = transform.forward * 15 * sign;
-        lethalTimer = 0.5f;
+        rb.velocity = transform.forward * 25 * sign;
+        lethalTimer = 0.75f;
     }
 
     public void SlamDoor()
@@ -82,9 +92,9 @@ public class DoorScript : MonoBehaviour
         joint.limits = limits;
         AddDoorForce();
     }
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.tag == "Enemy" && lethal)
-            other.GetComponent<Enemy>().GetHitByAttack((other.transform.position - transform.position).normalized * 30);
+            other.GetComponent<Enemy>().GetHitByAttack((other.transform.position - transform.position).normalized * 50);
     }
 }

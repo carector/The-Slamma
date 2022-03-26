@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1316466201085293061}
   - component: {fileID: 1316466201085293060}
   - component: {fileID: 1316466201085293062}
+  - component: {fileID: 2807737753020204762}
   m_Layer: 0
   m_Name: Grave
   m_TagString: Untagged
@@ -95,3 +96,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   billboard: 0
+--- !u!114 &2807737753020204762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316466201085293059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feb6b83b5b87e7448ae0ff58f419e899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeBeforeDeath: 8

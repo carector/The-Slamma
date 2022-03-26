@@ -24,7 +24,7 @@ public class Enemy : MonoBehaviour
         public bool dying;
     }
 
-
+    public string animationPrefix;
     public EnemyStates states;
     public int currentHealth;
     public GameObject grave;
@@ -51,6 +51,7 @@ public class Enemy : MonoBehaviour
         ply = FindObjectOfType<PlayerController>();
         sprDir = GetComponentInChildren<SpriteDirectionalManager>();
         rb = GetComponent<Rigidbody>();
+
     }
 
     public bool TakeDamagePrereqs()
@@ -66,6 +67,7 @@ public class Enemy : MonoBehaviour
     {
         if (states.dying)
             return;
+
         if (TakeDamagePrereqs())
         {
             states.dying = true;
@@ -75,35 +77,55 @@ public class Enemy : MonoBehaviour
 
     protected virtual bool LineOfSightOnPlayer()
     {
-        bool visible = false;
+        if (states.dying)
+            return false;
+
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, (ply.transform.position - transform.position).normalized, out hit, 20, ~(1 << 9)))
+        //Debug.DrawRay(transform.position+transform.up, (ply.transform.position - transform.position).normalized * 20, Color.red, Time.deltaTime);
+        if (Physics.Raycast(transform.position+transform.up, (ply.transform.position - (transform.position+transform.up)).normalized, out hit, 20, ~(1 << 9)))
         {
-            print(hit.transform.name);
             if (hit.transform.tag == "Player")
-            {
-                visible = true;
-                print("ayez");
-            }
+                return true;
         }
-        return visible;
+        return false;
+    }
+
+    protected virtual bool LineOfSightOnTransform(Transform t)
+    {
+        if (states.dying)
+            return false;
+
+        RaycastHit hit;
+        //Debug.DrawRay(transform.position+transform.up, (ply.transform.position - transform.position).normalized * 20, Color.red, Time.deltaTime);
+        if (Physics.Raycast(transform.position + transform.up, (t.position - (transform.position + transform.up)).normalized, out hit, 20))
+        {
+            if (hit.transform == t)
+                return true;
+        }
+        return false;
     }
 
     public IEnumerator Die(Vector3 velocity)
     {
-        GetComponentInChildren<Animator>().Play("EnemyDie");
+        velocity.y = 0;
+        GetComponentInChildren<Animator>().Play(animationPrefix+"Die");
         states.dying = true;
-        nav.enabled = false;
-        rb.isKinematic = false;
-        rb.velocity = velocity;
-        while (rb.velocity.magnitude > 1)
+        nav.enabled = true;
+        nav.velocity = velocity;
+        while (nav.velocity.magnitude > 0.5f)
             yield return null;
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.35f);
         Instantiate(grave, transform.GetChild(0).position + Vector3.up * 0.25f, Quaternion.identity);
         Destroy(this.gameObject);
     }
 
     // Navigation helper methods
+    protected void NavmeshMoveTowards(Transform t, float speed)
+    {
+        nav.speed = speed;
+        NavmeshMoveTowards(t);
+    }
+
     protected void NavmeshMoveTowards(Transform t)
     {
         if (nav == null)
@@ -119,7 +141,7 @@ public class Enemy : MonoBehaviour
         }
         else
             nav.SetDestination(t.position);
-        print("Moving");
+        print("Moving towards "+t.name);
     }
 
     IEnumerator JumpMotionTest()

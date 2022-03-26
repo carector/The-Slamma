@@ -47,6 +47,18 @@ TextureImporter:
   - first:
       213: -8535283610687501924
     second: Cop_8
+  - first:
+      213: -3185019381826349844
+    second: Cop_6
+  - first:
+      213: -1682313058917437357
+    second: Cop_7
+  - first:
+      213: -6510376631792439888
+    second: Cop_8
+  - first:
+      213: 3298155551090151099
+    second: Cop_9
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -320,8 +332,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f0f17fa30b025c040800000000000000
-      internalID: 4667172530114993935
+      spriteID: ce491874fb98cc3d0800000000000000
+      internalID: -3185019381826349844
       vertices: []
       indices: 
       edges: []
@@ -341,8 +353,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e8ab83f33e8590a50800000000000000
-      internalID: 6487814471245413006
+      spriteID: 350b93aaf2937a8e0800000000000000
+      internalID: -1682313058917437357
       vertices: []
       indices: 
       edges: []
@@ -362,8 +374,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c9902c727c49c8980800000000000000
-      internalID: -8535283610687501924
+      spriteID: 0bde10462fe76a5a0800000000000000
+      internalID: -6510376631792439888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cop_9
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 32
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bbe06b4dff665cd20800000000000000
+      internalID: 3298155551090151099
       vertices: []
       indices: 
       edges: []

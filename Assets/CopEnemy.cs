@@ -18,9 +18,11 @@ public class CopEnemy : Enemy
     {
         if (!states.dying && LineOfSightOnPlayer() && !shooting)
         {
+            nav.isStopped = false;
+            anim.SetFloat("WalkSpeed", nav.velocity.magnitude / nav.speed);
             NavmeshMoveTowards(ply.transform);
 
-            if (Vector3.Distance(transform.position, ply.transform.position) < 7)
+            if (Vector3.Distance(transform.position, ply.transform.position) < 15)
             {
                 anim.Play("Cop_Ready");
                 shooting = true;
@@ -29,19 +31,25 @@ public class CopEnemy : Enemy
         else
             nav.isStopped = true;
 
-        if (Vector3.Distance(transform.position, ply.transform.position) < 1.5f && !ply.states.takingDamage)
-            ply.TakeDamage();
+        if (states.dying)
+        {
+            nav.velocity = Vector3.Lerp(nav.velocity, Vector3.zero, 0.025f);
+            nav.isStopped = false;
+        }
     }
 
     public void EndShootState()
     {
+        print("Stopped shooting");
         shooting = false;
     }
     public void SpawnBullet()
     {
         audio.PlayOneShot(shootSound);
-        Transform t = Instantiate(bullet, transform.position + transform.forward * 0.25f + transform.up, Quaternion.identity).transform;
-        t.forward = transform.forward;
+        Transform t = Instantiate(bullet, transform.position + transform.forward * 0.25f + transform.up*1.4f + transform.right*0.25f, Quaternion.identity).transform;
+        Vector3 bulletDir = ply.transform.position - transform.position;
+        bulletDir.y = 0;
+        t.forward = (bulletDir);
     }
 
 

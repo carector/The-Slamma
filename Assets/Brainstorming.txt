@@ -45,6 +45,9 @@ POSTJAM IDEAS
 - Escaping the prison
 	- Clear enough rooms and you'll eventually make your way outside
 
+- Special rooms
+	- Hard-to-reach entrances lead to difficult rooms with high rewards
+
 Required mechanics:
 - Player controller
 - Enemy prefab (just one)

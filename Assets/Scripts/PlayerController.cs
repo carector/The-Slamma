@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
         public float referenceGravity = 6;
         public float maxVelocityChange = 10;
         public float mouseSensitivity = 3;
+        public float jumpForce = 25;
     }
 
     [System.Serializable]
@@ -48,7 +49,7 @@ public class PlayerController : MonoBehaviour
 
     public PlayerMovementSettings movement;
     public PlayerStates states;
-
+    public GameObject dustPrefab;
     public DoorScript currentDoor;
     public AudioClip[] sfx;
     AudioSource audio;
@@ -63,6 +64,7 @@ public class PlayerController : MonoBehaviour
     Animator camAnimations;
     Animator legAnimations;
     Animator camTiltAnimations;
+    DoorScript pulledDoor = null;
 
     float xAxisClamp;
     bool swinging;
@@ -114,16 +116,39 @@ public class PlayerController : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.Space) && states.isGrounded)
-            rb.velocity = new Vector3(rb.velocity.x, 25, rb.velocity.y);
+            rb.velocity = new Vector3(rb.velocity.x, movement.jumpForce, rb.velocity.z);
 
-        if (Input.GetMouseButtonDown(0))
+        // Find door to pull close
+        if (!holdingDoor)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                DoorScript d = CheckForDoorRaycast();
+                if (d != null && d.opened)
+                    pulledDoor = d;
+            }
+
+            if (Input.GetMouseButton(0) && pulledDoor != null)
+            {
+                pulledDoor.RotateTowardsShutPosition(transform.position + transform.forward);
+            }
+        }
+
+        // Kick door / swing held door
+        if (Input.GetMouseButtonUp(0))
         {
             if (!holdingDoor)
             {
                 legAnimations.Play("Kick");
-                DoorScript d = CheckForDoorRaycast();
+                DoorScript d = null;
+                if (pulledDoor != null)
+                    d = pulledDoor;
+                else
+                    d = CheckForDoorRaycast();
+
                 if (d != null)
                 {
+                    pulledDoor = null;
                     audio.PlayOneShot(sfx[UnityEngine.Random.Range(0, 3)]);
                     if (!d.opened)
                         d.KickOpenDoor();
@@ -131,7 +156,7 @@ public class PlayerController : MonoBehaviour
                         d.SlamDoor();
                 }
             }
-            else if(!swinging)
+            else if (!swinging)
             {
                 swinging = true;
                 camAnimations.Play("CameraDoorSwing", 0, 0);
@@ -143,7 +168,7 @@ public class PlayerController : MonoBehaviour
             DoorScript d = CheckForDoorRaycast();
             if (d != null && d.canBeGrabbed && !holdingDoor)
             {
-                audio.PlayOneShot(sfx[UnityEngine.Random.Range(0, 3)]);
+                PlaySFX(UnityEngine.Random.Range(0, 3));
                 camAnimations.Play("CameraDoorIdle", 0, 0);
                 doorCharges = 3;
                 if (!d.opened)
@@ -182,9 +207,13 @@ public class PlayerController : MonoBehaviour
     {
         gm.ScreenShake();
         if (holdingDoor && camAnimations.GetBool("Blocking"))
+        {
+            PlaySFX(UnityEngine.Random.Range(0, 3));
             doorCharges--;
+        }
         else
         {
+            PlaySFX(4);
             health--;
             if (health == 0)
             {
@@ -194,18 +223,22 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(TakeDamageCoroutine());
     }
 
+    public void PlaySFX(int index)
+    {
+        audio.PlayOneShot(sfx[index]);
+    }
+
     IEnumerator DieCoroutine()
     {
         states.canMove = false;
-        audio.PlayOneShot(sfx[5]);
+        PlaySFX(5);
         GameObject.Find("DeathScreen").GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
         yield return new WaitForSeconds(3.5f);
-        Application.LoadLevel(Application.loadedLevel);
+        //Application.LoadLevel(Application.loadedLevel);
     }
 
     IEnumerator TakeDamageCoroutine()
-    {
-        audio.PlayOneShot(sfx[4]);
+    {   
         states.takingDamage = true;
         yield return new WaitForSeconds(1.5f);
         states.takingDamage = false;
@@ -214,10 +247,10 @@ public class PlayerController : MonoBehaviour
     public void Lunge()
     {
         gm.ScreenShake();
-        audio.PlayOneShot(sfx[3]);
+        PlaySFX(3);
         DoorScript d = CheckForDoorRaycast();
         if (d != null)
-        { 
+        {
             if (!d.opened)
                 d.KickOpenDoor();
             else
@@ -230,8 +263,12 @@ public class PlayerController : MonoBehaviour
         {
             if (hit.transform.tag == "Enemy")
                 hit.transform.GetComponent<Enemy>().GetHitByAttack((hit.transform.position - transform.position).normalized*50);
-            if(hit.transform.tag == "Ground")
-                rb.velocity = (Vector3.up * 0.1f + -camHolder.transform.forward).normalized * 30;
+            if (hit.transform.tag == "Ground")
+            {
+                gm.ScreenShake();
+                Instantiate(dustPrefab, hit.point, Quaternion.identity);
+                rb.velocity = (Vector3.up * 0.1f + -camHolder.transform.forward).normalized * 32;
+            }
         }
     }
 
@@ -262,7 +299,7 @@ public class PlayerController : MonoBehaviour
     {
         Debug.DrawRay(camHolder.transform.position, camHolder.transform.forward, Color.red);
         RaycastHit[] hits = Physics.SphereCastAll(camHolder.transform.position, 1f, camHolder.transform.forward);
-        foreach(RaycastHit hit in hits)
+        foreach (RaycastHit hit in hits)
         {
             if (hit.transform.tag == "BubbleDisplayer")
                 gm.DisplayTipBubble(hit.point, hit.transform);
@@ -296,6 +333,18 @@ public class PlayerController : MonoBehaviour
             Vector3 velocityChange = Vector3.ClampMagnitude(Vector3.Lerp(Vector3.zero, (dir - rb.velocity), 0.25f), maxSpeed);
             rb.AddForce(velocityChange, ForceMode.VelocityChange);
         }
+        else
+        {
+            dir *= movement.walkSpeed;
+
+            // Apply force that attempts to reach our target (input) velocity
+            // No lerp to compensate for air control and different forcemode
+            Vector3 velocityChange = Vector3.ClampMagnitude(dir - rb.velocity, movement.maxVelocityChange);
+            velocityChange.y = 0;
+
+            // LACK OF FORCEMODE IS WHAT PROVIDES LESS AIR CONTROL
+            rb.AddForce(velocityChange * 2);
+        }
 
         // Apply additional gravity
         rb.AddForce(new Vector3(0, -movement.referenceGravity * rb.mass, 0));
@@ -318,10 +367,10 @@ public class PlayerController : MonoBehaviour
 
         // Tilt camera based on strafe inputs
         //print(transform.InverseTransformDirection(rb.velocity).x);
-        //float tiltAngle = Mathf.Sign(transform.InverseTransformDirection(rb.velocity).x);
-        //camTiltAnimations.SetFloat("Tilt", tiltAngle);
-        //camTiltAnimations.SetBool("NoTilt", !states.isGrounded || Mathf.Abs(transform.InverseTransformDirection(rb.velocity).x) <= 0.1f);
-            
+        float tiltAngle = Mathf.Sign(inputs.movement.x);
+        camTiltAnimations.SetFloat("Tilt", tiltAngle);
+        camTiltAnimations.SetBool("NoTilt", !states.isGrounded || inputs.movement.x == 0);
+
         // Multiply mouse positions by mouse sensitivity
         float rotAmountX = lookX * movement.mouseSensitivity;
         float rotAmountY = lookY * movement.mouseSensitivity;
@@ -361,6 +410,6 @@ public class PlayerController : MonoBehaviour
         hitData = foot.hitData;
         states.isGrounded = hitData.isGrounded;
         //if (states.isGrounded != lastGroundedState && states.isGrounded)
-            //camTiltAnimations.Play("CameraTiltGrounded");
+        //camTiltAnimations.Play("CameraTiltGrounded");
     }
 }

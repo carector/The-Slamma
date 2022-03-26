@@ -19,7 +19,8 @@ public class GameManager : MonoBehaviour
     public Transform globalCameraReference;
     public GameObject doorPrefab;
     public GameObject cellDoorPrefab;
-
+    public GameObject prisonerPrefab;
+    public GameObject copPrefab;
     public List<RoomManager> roomPrefabPool;
     public RoomManager currentRoom;
 

@@ -8,10 +8,17 @@ public class RoomManager : MonoBehaviour
     public RoomManager[] connections = new RoomManager[4]; // N S E W
     public DoorScript[] doors = new DoorScript[4];
     public Transform[] cellDoorSpawnPoints;
-
+    public Transform[] prisonerSpawnPoints;
+    public Transform[] copSpawnPoints;
+    public float enemySpawnChance = 0.5f;
+    public float copSpawnChance = 0.25f;
     public string id;
 
-    Transform[] spawnedCellDoors;
+
+
+    public List<Transform> spawnedEnemies;
+
+    public Transform[] spawnedCellDoors;
     GameManager gm;
 
     // Start is called before the first frame update
@@ -25,7 +32,10 @@ public class RoomManager : MonoBehaviour
         if (gm != null)
             return;
 
-        spawnedCellDoors = new Transform[cellDoorSpawnPoints.Length];
+        spawnedEnemies = new List<Transform>();
+        if(spawnedCellDoors.Length == 0)
+            spawnedCellDoors = new Transform[cellDoorSpawnPoints.Length];
+
         gm = FindObjectOfType<GameManager>();
     }
 
@@ -75,6 +85,16 @@ public class RoomManager : MonoBehaviour
         // Also spawn cell doors
         for (int i = 0; i < cellDoorSpawnPoints.Length; i++)
             spawnedCellDoors[i] = Instantiate(gm.cellDoorPrefab, cellDoorSpawnPoints[i].position, cellDoorSpawnPoints[i].rotation).transform;
+
+        // Spawn prisoners
+        for (int i = 0; i < prisonerSpawnPoints.Length; i++)
+            if (Random.Range(0, 1f) <= enemySpawnChance)
+                spawnedEnemies.Add(Instantiate(gm.prisonerPrefab, prisonerSpawnPoints[i].position, Quaternion.identity).transform);
+
+        // Spawn cops
+        for (int i = 0; i < copSpawnPoints.Length; i++)
+            if (Random.Range(0, 1f) <= copSpawnChance)
+                spawnedEnemies.Add(Instantiate(gm.copPrefab, copSpawnPoints[i].position, Quaternion.identity).transform);
     }
 
     public void DeleteRoom(int doorToKeep)
@@ -85,6 +105,10 @@ public class RoomManager : MonoBehaviour
         for (int i = 0; i < spawnedCellDoors.Length; i++)
             if(spawnedCellDoors[i] != null)
                 Destroy(spawnedCellDoors[i].gameObject);
+
+        foreach (Transform t in spawnedEnemies)
+            if (t != null)
+                Destroy(t.gameObject);
 
         Destroy(this.gameObject);
     }
