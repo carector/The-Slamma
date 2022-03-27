@@ -20,13 +20,19 @@ public class BulletScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.tag == "Wall")
+       
+        if(other.gameObject.tag == "Enemy")
+        {
+            other.GetComponent<Enemy>().GetHitByAttack((other.transform.position - transform.position).normalized*50);
             Destroy(this.gameObject);
-
+        }
         if (other.gameObject.tag == "Player")
         {
             ply.TakeDamage();
             Destroy(this.gameObject);
         }
+
+        if (other.gameObject.tag != "Room")
+            Destroy(this.gameObject);
     }
 }

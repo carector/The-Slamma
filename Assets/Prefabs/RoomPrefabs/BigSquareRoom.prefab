@@ -334,7 +334,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1567648627365131745}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.112, y: 2.35, z: -2.259}
+  m_LocalPosition: {x: -6.112, y: 1.25, z: -0.67}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3047104135076254283}
@@ -1322,10 +1322,10 @@ MonoBehaviour:
   cellDoorSpawnPoints: []
   prisonerSpawnPoints:
   - {fileID: 8478336521834341680}
-  - {fileID: 1755355338634016379}
   - {fileID: 51669097546587486}
+  - {fileID: 1755355338634016379}
   copSpawnPoints: []
-  enemySpawnChance: 0.25
+  enemySpawnChance: 0.66
   copSpawnChance: 0
   id: BigSquareRoom
   spawnedEnemies: []
@@ -4299,7 +4299,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4251742782238802556}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.419, y: 2.35, z: -2.657}
+  m_LocalPosition: {x: -2.419, y: 1.25, z: -1.0680001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3047104135076254283}
@@ -4329,7 +4329,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6599428565387093448}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.447, y: 2.35, z: 0.917}
+  m_LocalPosition: {x: -3.447, y: 1.25, z: 2.506}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3047104135076254283}

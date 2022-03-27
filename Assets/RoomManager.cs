@@ -63,7 +63,15 @@ public class RoomManager : MonoBehaviour
         }
     }
 
-    public void SpawnAtLocation(int compassDir, RoomManager connection)
+    public void SpawnExitSign()
+    {
+        if (anchors[0] == null)
+            return;
+        Transform sign = Instantiate(gm.exitSignPrefab, anchors[0]).transform;
+        sign.localPosition = new Vector3(-1f, 2.15f, -0.5f);
+    }
+
+    public IEnumerator SpawnAtLocation(int compassDir, RoomManager connection)
     {
         Initialize();
 
@@ -75,6 +83,8 @@ public class RoomManager : MonoBehaviour
         connections[compassDir] = connection;
         Vector3 offsetPos = transform.position - offset.position;// + Vector3.down*2.35f;
         transform.position = connection.anchors[GetOppositeAnchor(compassDir)].position + offsetPos;
+
+        yield return new WaitForEndOfFrame();
 
         // Check for existing doors, then spawn new ones for this room
         doors[compassDir] = connection.doors[GetOppositeAnchor(compassDir)];

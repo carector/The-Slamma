@@ -68,6 +68,8 @@ public class DoorScript : MonoBehaviour
 
         if (!canBeGrabbed)
             gm.EnterNewRoom(transform);
+
+        gm.IncreaseScore(25);
         rb.isKinematic = false;
         gm.ScreenShake();
         AddDoorForce();
@@ -95,6 +97,8 @@ public class DoorScript : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         if (other.tag == "Enemy" && lethal)
+        {
             other.GetComponent<Enemy>().GetHitByAttack((other.transform.position - transform.position).normalized * 50);
+        }
     }
 }

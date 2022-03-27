@@ -211,7 +211,7 @@ public class PlayerController : MonoBehaviour
             PlaySFX(UnityEngine.Random.Range(0, 3));
             doorCharges--;
         }
-        else
+        else if(health > 0)
         {
             PlaySFX(4);
             health--;
@@ -234,7 +234,7 @@ public class PlayerController : MonoBehaviour
         PlaySFX(5);
         GameObject.Find("DeathScreen").GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
         yield return new WaitForSeconds(3.5f);
-        //Application.LoadLevel(Application.loadedLevel);
+        Application.LoadLevel(Application.loadedLevel);
     }
 
     IEnumerator TakeDamageCoroutine()

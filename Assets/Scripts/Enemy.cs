@@ -36,6 +36,7 @@ public class Enemy : MonoBehaviour
     protected PlayerController ply;
     protected SpriteDirectionalManager sprDir;
     protected Rigidbody rb;
+    protected GameManager gm;
 
     private void Start()
     {
@@ -44,6 +45,7 @@ public class Enemy : MonoBehaviour
     }
     protected void GetReferences()
     {
+        gm = FindObjectOfType<GameManager>();
         audio = GetComponent<AudioSource>();
         anim = GetComponentInChildren<Animator>();
         nav = GetComponent<NavMeshAgent>();
@@ -71,6 +73,7 @@ public class Enemy : MonoBehaviour
         if (TakeDamagePrereqs())
         {
             states.dying = true;
+            gm.IncreaseScore(100);
             StartCoroutine(Die(velocity));
         }
     }

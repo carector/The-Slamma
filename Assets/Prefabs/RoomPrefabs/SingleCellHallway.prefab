@@ -33084,9 +33084,11 @@ MonoBehaviour:
   - {fileID: 1859618017575600561}
   - {fileID: 5505625780409010815}
   copSpawnPoints: []
-  enemySpawnChance: 0.5
+  enemySpawnChance: 0.75
   copSpawnChance: 0
   id: SingleCellHallway
+  spawnedEnemies: []
+  spawnedCellDoors: []
 --- !u!65 &3686639975375045867
 BoxCollider:
   m_ObjectHideFlags: 0

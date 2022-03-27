@@ -25218,7 +25218,7 @@ MonoBehaviour:
   - {fileID: 3993010107375211373}
   copSpawnPoints:
   - {fileID: 7022654014951957885}
-  enemySpawnChance: 0.65
+  enemySpawnChance: 0.75
   copSpawnChance: 0.85
   id: CellsHallway
   spawnedEnemies: []

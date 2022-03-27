@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,26 +11,45 @@ public class GameManager : MonoBehaviour
     Image[] hearts;
     Image[] doors;
 
+    TextMeshProUGUI roomNumberText;
+    TextMeshProUGUI scoreText;
+
     RectTransform tipBubble;
     Transform tipBubblePointer;
 
     PlayerController ply;
 
     public int score;
+    public float displayedScore = 0;
+    public int roomsCleared;
+
     public Transform globalCameraReference;
     public GameObject doorPrefab;
     public GameObject cellDoorPrefab;
     public GameObject prisonerPrefab;
     public GameObject copPrefab;
+    public GameObject exitSignPrefab;
+
     public List<RoomManager> roomPrefabPool;
+    public RoomManager endRoom;
     public RoomManager currentRoom;
 
     List<RoomManager> spawnedRooms;
     List<RoomManager> visitedRooms;
 
+    AudioSource musicSource;
+
+    RoomManager exitRoom;
+
     // Start is called before the first frame update
     void Start()
     {
+        roomNumberText = GameObject.Find("RoomNumberText").GetComponent<TextMeshProUGUI>();
+        scoreText = GameObject.Find("PointsText").GetComponent<TextMeshProUGUI>();
+
+        if (GameObject.Find("Music") != null)
+            musicSource = GameObject.Find("Music").GetComponent<AudioSource>();
+
         visitedRooms = new List<RoomManager>();
         spawnedRooms = new List<RoomManager>();
         ply = FindObjectOfType<PlayerController>();
@@ -52,18 +72,64 @@ public class GameManager : MonoBehaviour
         camObject = GameObject.Find("Camera").GetComponent<Camera>();
 
         //Time.timeScale = 0;
+        StartCoroutine(HideTipText()); // Temp
+    }
+
+    IEnumerator HideTipText()
+    {
+        yield return new WaitForSeconds(5);
+        Destroy(GameObject.Find("TipText"));
     }
 
     public void EnterNewRoom(Transform openedDoorTransform)
     {
         int anchor = currentRoom.GetAnchorIndexFromTransform(openedDoorTransform);
+
+        if (anchor == 0 && currentRoom == exitRoom)
+        {
+            EnterFinalRoom();
+            return;
+        }
+
         RoomManager newRoom = GetValidRoom(GetOppositeAnchor(anchor));
         RoomManager r = Instantiate(newRoom, Vector3.down * 25, Quaternion.identity).GetComponent<RoomManager>();
         print(anchor);
-        r.SpawnAtLocation(GetOppositeAnchor(anchor), currentRoom);
+        StartCoroutine(r.SpawnAtLocation(GetOppositeAnchor(anchor), currentRoom));
+
+        roomsCleared++;
+
+        // Check if we should have the exit sign appear
+        if (score >= 2500 && r.anchors[0] != null && anchor != 1 && Random.Range(0, 1f) >= 0.5f)
+        {
+            exitRoom = r;
+            r.SpawnExitSign();
+        }
+
         currentRoom.connections[anchor] = r;
         currentRoom.ResetAllOtherDoors(anchor);
         currentRoom = r;
+
+        roomNumberText.text = "Room " + roomsCleared;
+    }
+
+    public void EnterFinalRoom()
+    {
+        DoorScript[] doors = FindObjectsOfType<DoorScript>();
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+
+        if (musicSource != null)
+            musicSource.Stop();
+
+        RoomManager r = Instantiate(endRoom, Vector3.down * 25, Quaternion.identity).GetComponent<RoomManager>();
+        StartCoroutine(r.SpawnAtLocation(1, currentRoom));
+        currentRoom.connections[0] = r;
+        currentRoom.ResetAllOtherDoors(0);
+        currentRoom = r;
+
+        for (int i = 0; i < doors.Length; i++)
+            doors[i].locked = true;
+        for (int i = 0; i < enemies.Length; i++)
+            Destroy(enemies[i].gameObject);
     }
 
     RoomManager GetValidRoom(int requiredIndex)
@@ -116,11 +182,26 @@ public class GameManager : MonoBehaviour
         return -1;
     }
 
+    public void IncreaseScore(int amount)
+    {
+        score += amount;
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
             Application.Quit();
+
+        // Update score text
+        displayedScore = Mathf.Lerp(displayedScore, score, 0.05f);
+        scoreText.text = Mathf.RoundToInt(displayedScore).ToString();
+
+        int targetFontSize = 90;
+        if (Mathf.RoundToInt(displayedScore) != score)
+            scoreText.fontSize = 110;
+
+        scoreText.fontSize = Mathf.Lerp(scoreText.fontSize, targetFontSize, 0.05f);
 
         // Update health
         for (int i = 0; i < ply.health; i++)
