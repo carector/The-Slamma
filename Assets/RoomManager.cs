@@ -10,6 +10,7 @@ public class RoomManager : MonoBehaviour
     public Transform[] cellDoorSpawnPoints;
     public Transform[] prisonerSpawnPoints;
     public Transform[] copSpawnPoints;
+    public bool[] hardToReachDoors = new bool[4]; 
     public float enemySpawnChance = 0.5f;
     public float copSpawnChance = 0.25f;
     public string id;
@@ -105,6 +106,8 @@ public class RoomManager : MonoBehaviour
         for (int i = 0; i < copSpawnPoints.Length; i++)
             if (Random.Range(0, 1f) <= copSpawnChance)
                 spawnedEnemies.Add(Instantiate(gm.copPrefab, copSpawnPoints[i].position, Quaternion.identity).transform);
+
+        gm.BakeNavMesh();
     }
 
     public void DeleteRoom(int doorToKeep)

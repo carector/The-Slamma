@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 631ed881bc42e3c49a713dd9716166fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.4
+  speed: 0.45
 --- !u!135 &1538134347249875533
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -57,7 +57,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.23
+  m_Radius: 0.275
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1538134347359166343
 GameObject:
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49f1c44561095164389041de81561890, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  billboard: 0
+  billboard: 1
 --- !u!95 &1538134347359166339
 Animator:
   serializedVersion: 3

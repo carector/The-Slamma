@@ -9,6 +9,8 @@ TagManager:
   - Room
   - BubbleDisplayer
   - Ground
+  - NoWalk
+  - Chest
   layers:
   - Default
   - TransparentFX

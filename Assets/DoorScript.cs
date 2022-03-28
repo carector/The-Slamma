@@ -8,6 +8,7 @@ public class DoorScript : MonoBehaviour
     public bool canBeGrabbed;
     public bool lethal;
     public bool locked;
+    public bool doesntOpenRoom;
     public float bounciness = 0.35f;
 
     float lethalTimer = 0;
@@ -66,7 +67,7 @@ public class DoorScript : MonoBehaviour
         if (locked)
             return;
 
-        if (!canBeGrabbed)
+        if (!canBeGrabbed && !doesntOpenRoom)
             gm.EnterNewRoom(transform);
 
         gm.IncreaseScore(25);

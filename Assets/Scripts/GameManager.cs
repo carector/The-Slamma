@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using UnityEngine.AI;
 public class GameManager : MonoBehaviour
 {
     Camera camObject;
     Transform cam;
     Image[] hearts;
     Image[] doors;
+    Slider scoreSlider;
 
     TextMeshProUGUI roomNumberText;
     TextMeshProUGUI scoreText;
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
     PlayerController ply;
 
     public int score;
+    public int scoreThreshold = 2500;
     public float displayedScore = 0;
     public int roomsCleared;
 
@@ -29,8 +31,10 @@ public class GameManager : MonoBehaviour
     public GameObject prisonerPrefab;
     public GameObject copPrefab;
     public GameObject exitSignPrefab;
+    public GameObject navLinkPrefab;
 
     public List<RoomManager> roomPrefabPool;
+    public List<RoomManager> hardToReachRoomPrefabPool; // Accessed from doors you need to slam your way into, also appear at lower rates if you're just holding a door
     public RoomManager endRoom;
     public RoomManager currentRoom;
 
@@ -52,6 +56,7 @@ public class GameManager : MonoBehaviour
 
         visitedRooms = new List<RoomManager>();
         spawnedRooms = new List<RoomManager>();
+        scoreSlider = GameObject.Find("ScoreSlider").GetComponent<Slider>();
         ply = FindObjectOfType<PlayerController>();
         hearts = new Image[3];
         for (int i = 0; i < 3; i++)
@@ -91,7 +96,12 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        RoomManager newRoom = GetValidRoom(GetOppositeAnchor(anchor));
+        RoomManager newRoom;
+        if(currentRoom.hardToReachDoors[anchor] || (ply.holdingDoor && Random.Range(0, 1f) > 0.8f))
+            newRoom = GetValidRoom(GetOppositeAnchor(anchor), hardToReachRoomPrefabPool);
+        else
+            newRoom = GetValidRoom(GetOppositeAnchor(anchor), roomPrefabPool);
+
         RoomManager r = Instantiate(newRoom, Vector3.down * 25, Quaternion.identity).GetComponent<RoomManager>();
         print(anchor);
         StartCoroutine(r.SpawnAtLocation(GetOppositeAnchor(anchor), currentRoom));
@@ -104,6 +114,10 @@ public class GameManager : MonoBehaviour
             exitRoom = r;
             r.SpawnExitSign();
         }
+
+        Transform link = Instantiate(navLinkPrefab, r.anchors[GetOppositeAnchor(anchor)]).transform;
+        link.localPosition = new Vector3(0, -1.75f, 0);
+        link.localEulerAngles = new Vector3(0, -180, 0);
 
         currentRoom.connections[anchor] = r;
         currentRoom.ResetAllOtherDoors(anchor);
@@ -132,11 +146,12 @@ public class GameManager : MonoBehaviour
             Destroy(enemies[i].gameObject);
     }
 
-    RoomManager GetValidRoom(int requiredIndex)
+    RoomManager GetValidRoom(int requiredIndex, List<RoomManager> roomPool)
     {
-        List<RoomManager> rooms = new List<RoomManager>(roomPrefabPool);
+        List<RoomManager> rooms = new List<RoomManager>(roomPool);
         RoomManager r = null;
 
+        // precondition: there's AT LEAST ONE valid room in the pool
         while (r == null && rooms.Count > 0)
         {
             RoomManager s = rooms[Random.Range(0, rooms.Count)];
@@ -147,7 +162,7 @@ public class GameManager : MonoBehaviour
                 if (rooms.Count == 0)
                 {
                     print("Reset");
-                    rooms = new List<RoomManager>(roomPrefabPool);
+                    rooms = new List<RoomManager>(roomPool);
                     visitedRooms = new List<RoomManager>();
                 }
             }
@@ -196,6 +211,7 @@ public class GameManager : MonoBehaviour
         // Update score text
         displayedScore = Mathf.Lerp(displayedScore, score, 0.05f);
         scoreText.text = Mathf.RoundToInt(displayedScore).ToString();
+        scoreSlider.value = Mathf.Lerp(scoreSlider.value, Mathf.Clamp01((float)score / scoreThreshold), 0.05f);
 
         int targetFontSize = 90;
         if (Mathf.RoundToInt(displayedScore) != score)
@@ -220,6 +236,22 @@ public class GameManager : MonoBehaviour
                 doors[i].color = Color.white;
             for (int i = ply.doorCharges; i < 3; i++)
                 doors[i].color = Color.black;
+        }
+    }
+    // Use this for initialization
+    public void BakeNavMesh()
+    {
+        NavMeshSurface[] surfaces = FindObjectsOfType<NavMeshSurface>();
+        
+
+        /*for (int j = 0; j < objectsToRotate.Length; j++)
+        {
+            objectsToRotate[j].localRotation = Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0));
+        }*/
+
+        for (int i = 0; i < surfaces.Length; i++)
+        {
+            surfaces[i].BuildNavMesh();
         }
     }
 

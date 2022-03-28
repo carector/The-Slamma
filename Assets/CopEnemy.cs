@@ -8,10 +8,19 @@ public class CopEnemy : Enemy
     public GameObject bullet;
     public AudioClip shootSound;
 
+    Transform spriteTransform;
+
     // Start is called before the first frame update
     void Start()
     {
         GetReferences();
+        spriteTransform = transform.GetChild(0);
+
+        if (gm.score >= gm.scoreThreshold)
+        {
+            nav.speed *= 1.5f;
+            anim.SetFloat("ShootSpeed", 0.85f);
+        }
     }
 
     void Update()
@@ -33,7 +42,7 @@ public class CopEnemy : Enemy
 
         if (states.dying)
         {
-            nav.velocity = Vector3.Lerp(nav.velocity, Vector3.zero, 0.025f);
+            nav.velocity = Vector3.Lerp(nav.velocity, Vector3.zero, 0.05f);
             nav.isStopped = false;
         }
     }
@@ -46,7 +55,7 @@ public class CopEnemy : Enemy
     public void SpawnBullet()
     {
         audio.PlayOneShot(shootSound);
-        Transform t = Instantiate(bullet, transform.position + transform.forward * 0.25f + transform.up*1.4f + transform.right*0.25f, Quaternion.identity).transform;
+        Transform t = Instantiate(bullet, spriteTransform.position + spriteTransform.forward * 0.25f + spriteTransform.up*0.25f - spriteTransform.right*0.25f, Quaternion.identity).transform;
         Vector3 bulletDir = ply.transform.position - transform.position;
         bulletDir.y = 0;
         t.forward = (bulletDir);

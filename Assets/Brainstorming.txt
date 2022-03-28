@@ -53,10 +53,11 @@ Required mechanics:
 - Enemy prefab (just one)
 - Door class
 - Game manager / room spawn handler
-- Score system: Factors in time + way you kill enemies
+- Score system: Factors in time + way you kill enemies (also add text blurbs for different score abilities)
 - Postgame leaderboard
 
 
+ADD DISCLAIMER TO ENABLE HARDWARE ACCELERATION
 
 
 Left mouse: Kick door open
@@ -64,7 +65,38 @@ If door is already open: Left mouse slams it instead
 Right mouse: Rip door off hinges
 
 
+THINGS LEFT TO DO (DO *NOT* FEATURE CREEP BEYOND THIS)
+- Levels
+	- Make 25 normal room variants and 10 hard-to-reach variants
+	- Potentially make hard-to-reach variants spawn normally at a very low rate
+	- Find a way to make enemies only get deleted if they're in a deleted room
+	- Make treasure chests to place in hard-to-reach rooms
+		- Either provides a heart or a big score increase
 
+- Enemies
+	// Fix bullets from killing cops
+	- Maybe add vertical movement to bullets
+	- After score threshold is reached, enemies get tougher: Higher spawn rates + faster move / shoot speeds
 
+- UI
+	- Title screen with start and quit buttons, credits off to the side
+	- Score threshold bar (minimum required before exit can appear)
+	- Add score "descriptions" based on how you kill someone
+		- Single line of text that appears above score before fading out
 
+- Audio
+	- Replace wood sounds
+	- Maybe add ambience
 
+- Detail
+	- Attack animation for prisoner, directional sprites for both enemies (4 is probably enough)
+	- Arm model that grabs doors when you pull them towards you
+	- Maybe bring an artist on board to help flesh out rooms / design some posters or textures
+
+- Miscellaneous
+	- Intro comic panels / cutscene showing how the prison riot started
+	- Tutorial level: Kicking doors, hitting enemies with doors, grabbing+slamming to gain height, guarding
+	- End cutscene: Car pulls up, you kick in the door (or pull it off its hinges) and drive off
+	- Newgrounds scoreboards+medals
+		- Time scoreboard
+		- Score scoreboard

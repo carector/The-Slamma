@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
     float xAxisClamp;
     bool swinging;
     bool lastGroundedState;
+    bool kicking;
 
     // Start is called before the first frame update
     void Start()
@@ -137,10 +138,12 @@ public class PlayerController : MonoBehaviour
         // Kick door / swing held door
         if (Input.GetMouseButtonUp(0))
         {
-            if (!holdingDoor)
+            if (!holdingDoor && !kicking)
             {
                 legAnimations.Play("Kick");
+                Transform t = CheckForEntity();
                 DoorScript d = null;
+
                 if (pulledDoor != null)
                     d = pulledDoor;
                 else
@@ -155,8 +158,24 @@ public class PlayerController : MonoBehaviour
                     else
                         d.SlamDoor();
                 }
+                else if (t != null)
+                {
+                    if (t.tag == "Chest")
+                    {
+                        ChestScript c = t.GetComponent<ChestScript>();
+                        c.OpenChest();
+                    }
+                    else if (t.tag == "Enemy")
+                    {
+                        Enemy e = t.GetComponent<Enemy>();
+                        e.AddKnockback((e.transform.position - transform.position).normalized);
+                    }
+                }
+
+                kicking = true;
+                StartCoroutine(KickRecharge());
             }
-            else if (!swinging)
+            else if (!swinging && holdingDoor)
             {
                 swinging = true;
                 camAnimations.Play("CameraDoorSwing", 0, 0);
@@ -203,8 +222,24 @@ public class PlayerController : MonoBehaviour
         return null;
     }
 
+    Transform CheckForEntity()
+    {
+        int mask = ~(1 << 8);
+        RaycastHit[] hits;
+        hits = Physics.SphereCastAll(camHolder.position, 0.75f, camHolder.forward, 4, mask);
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.transform.tag == "Enemy" || hit.transform.tag == "Chest")
+                return hit.transform;
+        }
+        return null;
+    }
+
     public void TakeDamage()
     {
+        if (states.takingDamage || health <= 0)
+            return;
+
         gm.ScreenShake();
         if (holdingDoor && camAnimations.GetBool("Blocking"))
         {
@@ -223,6 +258,7 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(TakeDamageCoroutine());
     }
 
+
     public void PlaySFX(int index)
     {
         audio.PlayOneShot(sfx[index]);
@@ -240,7 +276,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator TakeDamageCoroutine()
     {   
         states.takingDamage = true;
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.75f);
         states.takingDamage = false;
     }
 
@@ -258,7 +294,7 @@ public class PlayerController : MonoBehaviour
         }
 
         RaycastHit[] hits;
-        hits = Physics.SphereCastAll(camHolder.position, 0.5f, camHolder.forward, 3);
+        hits = Physics.SphereCastAll(camHolder.position, 0.5f, camHolder.forward, 5);
         foreach (RaycastHit hit in hits)
         {
             if (hit.transform.tag == "Enemy")
@@ -270,6 +306,12 @@ public class PlayerController : MonoBehaviour
                 rb.velocity = (Vector3.up * 0.1f + -camHolder.transform.forward).normalized * 32;
             }
         }
+    }
+
+    IEnumerator KickRecharge()
+    {
+        yield return new WaitForSeconds(0.75f);
+        kicking = false;
     }
 
     public void FinishSwing()

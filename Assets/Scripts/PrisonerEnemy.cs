@@ -11,6 +11,11 @@ public class PrisonerEnemy : Enemy
     {
         GetReferences();
         StartCoroutine(ScanForCopCycle());
+
+        if (gm.score >= gm.scoreThreshold)
+        {
+            nav.speed *= 1.5f;
+        }
     }
 
     // Update is called once per frame
@@ -18,7 +23,7 @@ public class PrisonerEnemy : Enemy
     {
         // auto-slow from big knockbacks, movement is done by navmesh
         if (states.dying)
-            nav.velocity = Vector3.Lerp(nav.velocity, Vector3.zero, 0.025f);
+            nav.velocity = Vector3.Lerp(nav.velocity, Vector3.zero, 0.05f);
 
         if (!states.dying)
         {
@@ -35,7 +40,7 @@ public class PrisonerEnemy : Enemy
             nearestCop.GetHitByAttack((nearestCop.transform.position - transform.position+transform.up).normalized * 50);
         }
 
-        if (Vector3.Distance(transform.position, ply.transform.position) < 2f && !ply.states.takingDamage)
+        if (Vector3.Distance(transform.position, ply.transform.position) < 1.33f && !ply.states.takingDamage && !states.dying)
             ply.TakeDamage();
     }
 

@@ -38,22 +38,33 @@ public class Enemy : MonoBehaviour
     protected Rigidbody rb;
     protected GameManager gm;
 
+    float origSpeed;
+    bool linking;
     private void Start()
     {
         GetReferences();
-
     }
+
+    IEnumerator WaitForNavMeshCreation()
+    {
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        nav.enabled = true;
+    }
+
     protected void GetReferences()
     {
         gm = FindObjectOfType<GameManager>();
         audio = GetComponent<AudioSource>();
         anim = GetComponentInChildren<Animator>();
         nav = GetComponent<NavMeshAgent>();
+        if (nav != null)
+            origSpeed = nav.speed;
         spr = GetComponentInChildren<SpriteRenderer>();
         ply = FindObjectOfType<PlayerController>();
         sprDir = GetComponentInChildren<SpriteDirectionalManager>();
         rb = GetComponent<Rigidbody>();
-
+        StartCoroutine(WaitForNavMeshCreation());
     }
 
     public bool TakeDamagePrereqs()
@@ -85,7 +96,7 @@ public class Enemy : MonoBehaviour
 
         RaycastHit hit;
         //Debug.DrawRay(transform.position+transform.up, (ply.transform.position - transform.position).normalized * 20, Color.red, Time.deltaTime);
-        if (Physics.Raycast(transform.position+transform.up, (ply.transform.position - (transform.position+transform.up)).normalized, out hit, 20, ~(1 << 9)))
+        if (Physics.Raycast(transform.position + transform.up, (ply.transform.position - (transform.position + transform.up)).normalized, out hit, 20, ~(1 << 9)))
         {
             if (hit.transform.tag == "Player")
                 return true;
@@ -111,7 +122,7 @@ public class Enemy : MonoBehaviour
     public IEnumerator Die(Vector3 velocity)
     {
         velocity.y = 0;
-        GetComponentInChildren<Animator>().Play(animationPrefix+"Die");
+        GetComponentInChildren<Animator>().Play(animationPrefix + "Die");
         states.dying = true;
         nav.enabled = true;
         nav.velocity = velocity;
@@ -122,66 +133,37 @@ public class Enemy : MonoBehaviour
         Destroy(this.gameObject);
     }
 
+    public void AddKnockback(Vector3 direction)
+    {
+        direction.y = 0;
+        nav.velocity = direction*10;
+    }
+
+
     // Navigation helper methods
     protected void NavmeshMoveTowards(Transform t, float speed)
     {
-        nav.speed = speed;
+        if(!linking)
+            nav.speed = speed;
+
         NavmeshMoveTowards(t);
     }
 
     protected void NavmeshMoveTowards(Transform t)
     {
+        if (!nav.enabled)
+            return;
+
         if (nav == null)
         {
             if (GetComponent<NavMeshAgent>() == null)
                 return;
             nav = GetComponent<NavMeshAgent>();
         }
-        if (nav.isOnOffMeshLink && !states.jumping)
-        {
-            states.jumping = true;
-            StartCoroutine(JumpMotionTest());
-        }
         else
             nav.SetDestination(t.position);
+
         print("Moving towards "+t.name);
-    }
-
-    IEnumerator JumpMotionTest()
-    {
-        if (spr == null)
-        {
-            if (GetComponentInChildren<SpriteRenderer>() == null)
-                yield break;
-            spr = GetComponentInChildren<SpriteRenderer>();
-        }
-
-        anim.Play("Test_Air");
-
-        // Get start and end points of link
-        Vector3 start = nav.currentOffMeshLinkData.startPos - (nav.currentOffMeshLinkData.startPos - transform.position);
-        Vector3 end = nav.currentOffMeshLinkData.endPos + Vector3.up * nav.baseOffset;
-        Vector3 vertex = (start + end) / 2;
-        vertex.y = Mathf.Max(start.y, end.y) + 3;
-        float initialDistance = Vector3.Distance(transform.position, end);
-        float delta = 0;
-        while (delta < 1)
-        {
-            transform.position = BezierPoint(start, end, vertex, delta);
-            delta += Time.fixedDeltaTime * 1.5f;
-            yield return new WaitForFixedUpdate();
-        }
-
-        nav.Warp(end);
-        transform.rotation = Quaternion.Euler(0, GetAngleToPlayer(), 0);
-        states.jumping = false;
-    }
-
-    // Used for jump motion between nav links
-    public Vector3 BezierPoint(Vector3 start, Vector3 end, Vector3 vertex, float delta) // delta being a number between 0 and 1
-    {
-        // what?
-        return Mathf.Pow((1 - delta), 2) * start + 2 * (1 - delta) * delta * vertex + Mathf.Pow(delta, 2) * end;
     }
 
     public float GetAngleToPlayer()
