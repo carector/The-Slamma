@@ -98,7 +98,6 @@ public class PlayerController : MonoBehaviour
         // Get ground hit data from foot collider
         GetGroundHitData();
         UpdateInputAxes();
-        TipBubbleRaycast();
     }
 
     // Obtain input values
@@ -270,7 +269,7 @@ public class PlayerController : MonoBehaviour
         PlaySFX(5);
         GameObject.Find("DeathScreen").GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
         yield return new WaitForSeconds(3.5f);
-        Application.LoadLevel(Application.loadedLevel);
+        gm.Restart();
     }
 
     IEnumerator TakeDamageCoroutine()
@@ -298,7 +297,7 @@ public class PlayerController : MonoBehaviour
         foreach (RaycastHit hit in hits)
         {
             if (hit.transform.tag == "Enemy")
-                hit.transform.GetComponent<Enemy>().GetHitByAttack((hit.transform.position - transform.position).normalized*50);
+                hit.transform.GetComponent<Enemy>().GetHitByAttack((hit.transform.position - transform.position).normalized*50, true, false);
             if (hit.transform.tag == "Ground")
             {
                 gm.ScreenShake();
@@ -335,17 +334,6 @@ public class PlayerController : MonoBehaviour
         float lookHoriz = inputs.look.x;
         float lookVert = inputs.look.y;
         MouseLook(lookHoriz, lookVert);
-    }
-
-    void TipBubbleRaycast()
-    {
-        Debug.DrawRay(camHolder.transform.position, camHolder.transform.forward, Color.red);
-        RaycastHit[] hits = Physics.SphereCastAll(camHolder.transform.position, 1f, camHolder.transform.forward);
-        foreach (RaycastHit hit in hits)
-        {
-            if (hit.transform.tag == "BubbleDisplayer")
-                gm.DisplayTipBubble(hit.point, hit.transform);
-        }
     }
 
     void MovePlayer(float horiz, float vert)

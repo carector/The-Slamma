@@ -37,7 +37,9 @@ public class Enemy : MonoBehaviour
     protected SpriteDirectionalManager sprDir;
     protected Rigidbody rb;
     protected GameManager gm;
+    protected Collider col;
 
+    bool hasNoticedTarget;
     float origSpeed;
     bool linking;
     private void Start()
@@ -64,6 +66,7 @@ public class Enemy : MonoBehaviour
         ply = FindObjectOfType<PlayerController>();
         sprDir = GetComponentInChildren<SpriteDirectionalManager>();
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
         StartCoroutine(WaitForNavMeshCreation());
     }
 
@@ -76,7 +79,7 @@ public class Enemy : MonoBehaviour
     // 1. Player calls GetHitByAttack
     // 2. TakeDamagePrereqs varies per enemy
     // 3. Additional method called when enemy gets hit? (TakeDamagePrereqs may be enough)
-    public void GetHitByAttack(Vector3 velocity)
+    public void GetHitByAttack(Vector3 velocity, bool killedByHeldDoor, bool killedByAnotherEnemy)
     {
         if (states.dying)
             return;
@@ -84,7 +87,13 @@ public class Enemy : MonoBehaviour
         if (TakeDamagePrereqs())
         {
             states.dying = true;
-            gm.IncreaseScore(100);
+            if(killedByHeldDoor)
+                gm.IncreaseScore(100, "Slam");
+            else if(killedByAnotherEnemy)
+                gm.IncreaseScore(200, "Helping hand");
+            else
+                gm.IncreaseScore(150, "Stationary slam");
+
             StartCoroutine(Die(velocity));
         }
     }
@@ -94,14 +103,31 @@ public class Enemy : MonoBehaviour
         if (states.dying)
             return false;
 
+        if (hasNoticedTarget)
+            return true;
+
         RaycastHit hit;
         //Debug.DrawRay(transform.position+transform.up, (ply.transform.position - transform.position).normalized * 20, Color.red, Time.deltaTime);
         if (Physics.Raycast(transform.position + transform.up, (ply.transform.position - (transform.position + transform.up)).normalized, out hit, 20, ~(1 << 9)))
         {
             if (hit.transform.tag == "Player")
+            {
+                NavMeshPath p = new NavMeshPath();
+                if (nav == null || !nav.CalculatePath(ply.transform.position, p))
+                    return false;
+
+                hasNoticedTarget = true;
+                StartCoroutine(LoSCooldown());
                 return true;
+            }
         }
         return false;
+    }
+
+    IEnumerator LoSCooldown()
+    {
+        yield return new WaitForSeconds(5);
+        hasNoticedTarget = false;
     }
 
     protected virtual bool LineOfSightOnTransform(Transform t)
@@ -109,18 +135,30 @@ public class Enemy : MonoBehaviour
         if (states.dying)
             return false;
 
+        if (hasNoticedTarget)
+            return true;
+
         RaycastHit hit;
         //Debug.DrawRay(transform.position+transform.up, (ply.transform.position - transform.position).normalized * 20, Color.red, Time.deltaTime);
         if (Physics.Raycast(transform.position + transform.up, (t.position - (transform.position + transform.up)).normalized, out hit, 20))
         {
             if (hit.transform == t)
+            {
+                NavMeshPath p = new NavMeshPath();
+                if (nav == null || !nav.CalculatePath(t.position, p))
+                    return false;
+
+                hasNoticedTarget = true;
+                StartCoroutine(LoSCooldown());
                 return true;
+            }
         }
         return false;
     }
 
     public IEnumerator Die(Vector3 velocity)
     {
+        col.isTrigger = true;
         velocity.y = 0;
         GetComponentInChildren<Animator>().Play(animationPrefix + "Die");
         states.dying = true;
@@ -136,14 +174,14 @@ public class Enemy : MonoBehaviour
     public void AddKnockback(Vector3 direction)
     {
         direction.y = 0;
-        nav.velocity = direction*10;
+        nav.velocity = direction * 10;
     }
 
 
     // Navigation helper methods
     protected void NavmeshMoveTowards(Transform t, float speed)
     {
-        if(!linking)
+        if (!linking)
             nav.speed = speed;
 
         NavmeshMoveTowards(t);
@@ -163,7 +201,15 @@ public class Enemy : MonoBehaviour
         else
             nav.SetDestination(t.position);
 
-        print("Moving towards "+t.name);
+        if (nav.isOnOffMeshLink)
+        {
+            Vector3 pos = nav.currentOffMeshLinkData.endPos;
+            transform.position = Vector3.MoveTowards(transform.position, pos, 0.025f);
+            if (transform.position == pos)
+                nav.Warp(pos);
+        }
+
+        print("Moving towards " + t.name);
     }
 
     public float GetAngleToPlayer()

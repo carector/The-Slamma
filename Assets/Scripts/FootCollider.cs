@@ -29,6 +29,9 @@ public class FootCollider : MonoBehaviour
         // Check to make sure none of our colliders we've hit are too slope-y
         foreach (Collider c in cols)
         {
+            if (c == null)
+                continue;
+
             hitData.isGrounded = false;
 
             if (c.Raycast(r, out hit, 10000f))

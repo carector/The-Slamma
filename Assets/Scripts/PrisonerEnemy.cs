@@ -37,7 +37,7 @@ public class PrisonerEnemy : Enemy
         if (nearestCop != null && Vector3.Distance(transform.position, nearestCop.transform.position) < 2f && !nearestCop.states.dying)
         {
             ply.PlaySFX(4);
-            nearestCop.GetHitByAttack((nearestCop.transform.position - transform.position+transform.up).normalized * 50);
+            nearestCop.GetHitByAttack((nearestCop.transform.position - transform.position+transform.up).normalized * 50, false, true);
         }
 
         if (Vector3.Distance(transform.position, ply.transform.position) < 1.33f && !ply.states.takingDamage && !states.dying)
@@ -58,5 +58,15 @@ public class PrisonerEnemy : Enemy
 
         yield return new WaitForSeconds(3);
         StartCoroutine(ScanForCopCycle());
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Door")
+        {
+            DoorScript d = other.GetComponent<DoorScript>();
+            if(!d.lethal)
+                d.AddDoorForce(transform, false);
+        }
     }
 }
