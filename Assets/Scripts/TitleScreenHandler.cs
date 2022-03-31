@@ -12,7 +12,7 @@ public class TitleScreenHandler : MonoBehaviour
     Slider musicSlider;
     Slider ambSlider;
 
-
+    Animator fadeAnimator;
     Animator anim;
     AudioSource audio;
     public AudioClip[] sfx;
@@ -36,7 +36,8 @@ public class TitleScreenHandler : MonoBehaviour
         ambSlider = GameObject.Find("AmbienceSlider").GetComponent<Slider>();
         musicSlider = GameObject.Find("MusicSlider").GetComponent<Slider>();
         LoadVolumeFromPlayerPrefs();
-        GameObject.Find("FadeScreen").GetComponent<Animator>().Play("BlackFadeIn");
+        fadeAnimator = GameObject.Find("FadeScreenTitle").GetComponent<Animator>();
+        fadeAnimator.Play("BlackFadeIn");
     }
 
     private void Update()
@@ -140,15 +141,17 @@ public class TitleScreenHandler : MonoBehaviour
         if (loading)
             return;
 
+        Cursor.lockState = CursorLockMode.Locked;
         loading = true;
         StartCoroutine(Load());
     }
 
     IEnumerator Load()
     {
-        GameObject.Find("FadeScreen").GetComponent<Animator>().Play("BlackFadeOut");
+        fadeAnimator.Play("BlackFadeOut");
         yield return new WaitForSeconds(0.8f);
-        Application.LoadLevel(1);
+
+        FindObjectOfType<GameManager>().InitializePlayer(!PlayerPrefs.HasKey("SLAMMA_HAS_PLAYED_TUTORIAL") || PlayerPrefs.GetInt("SLAMMA_HAS_PLAYED_TUTORIAL") == 0);
     }
 
     public void FadeOutAmbience()

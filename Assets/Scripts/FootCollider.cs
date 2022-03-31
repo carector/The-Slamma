@@ -12,12 +12,14 @@ public class FootCollider : MonoBehaviour
 
     GameManager gm;
     Rigidbody prb;
+    PlayerController ply;
 
     // Start is called before the first frame update
     void Start()
     {
         gm = FindObjectOfType<GameManager>();
-        prb = FindObjectOfType<PlayerController>().GetComponent<Rigidbody>();
+        ply = FindObjectOfType<PlayerController>();
+        prb = ply.GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -71,6 +73,9 @@ public class FootCollider : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!ply.states.canMove)
+            return;
+
         if (other.tag != "NoWalk" && other.tag != "Enemy" && other.tag != "Door" && other.tag != "Player" && other.tag != "Room")
             cols.Add(other);
     }

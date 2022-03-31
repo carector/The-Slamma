@@ -37,7 +37,7 @@ public class CopEnemy : Enemy
                 shooting = true;
             }
         }
-        else
+        else if(nav.enabled)
             nav.isStopped = true;
 
         if (states.dying)

@@ -79,9 +79,9 @@ public class PlayerController : MonoBehaviour
         gm = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
         foot = FindObjectOfType<FootCollider>();
-        camHolder = transform.GetChild(0);
-        camAnimations = camHolder.transform.GetChild(0).GetComponent<Animator>();
-        camTiltAnimations = camAnimations.transform.GetChild(0).GetComponent<Animator>();
+        camHolder = GameObject.Find("CameraHolder").transform;
+        camAnimations = GameObject.Find("CameraAnimations").GetComponent<Animator>();
+        camTiltAnimations = GameObject.Find("CameraTilt").GetComponent<Animator>();
         gm.globalCameraReference = camHolder;
         inputs = new PlayerInputValues();
     }

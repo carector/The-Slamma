@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     TextMeshProUGUI scoreMultiplierText;
     TextMeshProUGUI attackDescriptionText;
 
-
+    GameObject hud;
     RectTransform pauseScreen;
     RectTransform hudScreen;
     RectTransform resultsScreen;
@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
 
     int currentComboPoints; // Points since the score timer was reset
 
+    bool initialized;
     bool loadingLevel;
     bool showingResults;
     bool shownThreshold;
@@ -55,6 +56,10 @@ public class GameManager : MonoBehaviour
     public GameObject copPrefab;
     public GameObject exitSignPrefab;
     public GameObject navLinkPrefab;
+
+    public GameObject titleScreenRoom;
+    public GameObject tutorialRoomPrefab;
+    public GameObject mainRoomPrefab;
 
     public List<RoomManager> roomPrefabPool;
     public List<RoomManager> hardToReachRoomPrefabPool; // Accessed from doors you need to slam your way into, also appear at lower rates if you're just holding a door
@@ -68,7 +73,7 @@ public class GameManager : MonoBehaviour
     Slider sfxSlider;
     Slider musicSlider;
     Slider ambSlider;
-    Animator fadeAnimator;
+    public Animator fadeAnimator;
     RoomManager exitRoom;
 
     IEnumerator currentMultiplierCountdown = null;
@@ -79,11 +84,10 @@ public class GameManager : MonoBehaviour
         navBaker = GetComponent<NavigationBaker>();
         ng = FindObjectOfType<MedalScoreboardUtility>();
 
+        hud = GameObject.Find("HUD");
         sfxSlider = GameObject.Find("SFXSlider").GetComponent<Slider>();
         ambSlider = GameObject.Find("AmbienceSlider").GetComponent<Slider>();
         musicSlider = GameObject.Find("MusicSlider").GetComponent<Slider>();
-        LoadVolumeFromPlayerPrefs();
-
 
         timerText = GameObject.Find("RoomNumberText").GetComponent<TextMeshProUGUI>();
         scoreText = GameObject.Find("PointsText").GetComponent<TextMeshProUGUI>();
@@ -122,17 +126,11 @@ public class GameManager : MonoBehaviour
             doors[i].color = Color.clear;
         }
 
-        Cursor.lockState = CursorLockMode.Locked;
         cam = GameObject.Find("CameraAnimations").transform;
         camObject = GameObject.Find("Camera").GetComponent<Camera>();
 
         BakeNavigation();
-
-        if (SceneManager.GetActiveScene().buildIndex == 2)
-            PlayerPrefs.SetInt("SLAMMA_HAS_PLAYED_TUTORIAL", 1);
-
-
-        fadeAnimator = GameObject.Find("FadeScreen").GetComponent<Animator>();
+        Cursor.lockState = CursorLockMode.None;
     }
 
     IEnumerator ShowThresholdText()
@@ -140,6 +138,25 @@ public class GameManager : MonoBehaviour
         scoreThresholdText.rectTransform.anchoredPosition = Vector2.zero;
         yield return new WaitForSeconds(5);
         scoreThresholdText.rectTransform.anchoredPosition = Vector2.down * 1000;
+    }
+
+    public void InitializePlayer(bool isTutorial)
+    {
+        if (isTutorial)
+            PlayerPrefs.SetInt("SLAMMA_HAS_PLAYED_TUTORIAL", 1);
+
+        if (isTutorial)
+            Instantiate(tutorialRoomPrefab);
+        else
+            Instantiate(mainRoomPrefab);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        hud.SetActive(true);
+        LoadVolumeFromPlayerPrefs();
+        fadeAnimator.Play("BlackFadeIn", 0, 0);
+        Destroy(titleScreenRoom.gameObject);
+        ply.states.canMove = true;
+        initialized = true;
     }
 
     public void ShowResultsScreen()
@@ -352,9 +369,9 @@ public class GameManager : MonoBehaviour
             scoreMultiplierText.fontSize = 90;
             currentComboPoints = 0;
             scoreMultiplier = Mathf.Clamp(scoreMultiplier + 1, 1, 4);
-            scoreMultiplierText.text = scoreMultiplier+"x";
+            scoreMultiplierText.text = scoreMultiplier + "x";
         }
-            
+
         if (currentMultiplierCountdown != null)
             StopCoroutine(currentMultiplierCountdown);
 
@@ -366,7 +383,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator ShowAttackDescription()
     {
-        yield return new WaitForSeconds(7f - (scoreMultiplier*0.5f));
+        yield return new WaitForSeconds(7f - (scoreMultiplier * 0.5f));
         attackDescriptionText.text = "";
         currentComboPoints = 0;
         scoreMultiplier = 1;
@@ -437,6 +454,9 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!initialized)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
             SetPausedState(!gamePaused);
 

@@ -28,7 +28,7 @@ public class PrisonerEnemy : Enemy
         if (!states.dying)
         {
             anim.SetFloat("WalkSpeed", nav.velocity.magnitude / 5);
-            if (nearestCop != null && LineOfSightOnTransform(nearestCop.transform))
+            if (nearestCop != null && LineOfSightOnTransform(nearestCop.transform) && Mathf.Abs(transform.position.y - nearestCop.transform.position.y) < 4)
                 NavmeshMoveTowards(nearestCop.transform, 8);
             else if (LineOfSightOnPlayer())
                 NavmeshMoveTowards(ply.transform, 5);
