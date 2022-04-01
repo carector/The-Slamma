@@ -74,8 +74,13 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GetReferences();
+    }
+
+    public void GetReferences()
+    {
         audio = GetComponent<AudioSource>();
-        legAnimations = GameObject.Find("HUD").GetComponent<Animator>();
+        legAnimations = GameObject.Find("PlayerHUD").GetComponent<Animator>();
         gm = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
         foot = FindObjectOfType<FootCollider>();

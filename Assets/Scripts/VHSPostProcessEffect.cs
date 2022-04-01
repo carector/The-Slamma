@@ -19,6 +19,11 @@ public class VHSPostProcessEffect : MonoBehaviour
 
 	void Start()
 	{
+		Initialize();
+	}
+
+	public void Initialize()
+    {
 		_material = new Material(shader);
 		_player = GetComponent<VideoPlayer>();
 		_player.isLooping = true;

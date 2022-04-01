@@ -23,4 +23,10 @@ public class DoorRespawner : MonoBehaviour
             door = Instantiate(gm.cellDoorPrefab, transform.position, transform.rotation).transform;
         }
     }
+
+    private void OnDestroy()
+    {
+        if(door != null)
+            Destroy(door.gameObject);
+    }
 }

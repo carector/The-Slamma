@@ -76,6 +76,7 @@ public class RoomManager : MonoBehaviour
     {
         Initialize();
 
+        gm.spawnedRooms.Add(this);
         connections = new RoomManager[4];
         doors = new DoorScript[4];
 
@@ -126,6 +127,10 @@ public class RoomManager : MonoBehaviour
             if (t != null)
                 Destroy(t.gameObject);
 
+        if (gm.spawnedRooms.Contains(this))
+            gm.spawnedRooms.Remove(this);
+
+        print("Deleted " + gameObject.name);
         Destroy(this.gameObject);
     }
 

@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
     public RoomManager endRoom;
     public RoomManager currentRoom;
 
-    List<RoomManager> spawnedRooms;
+    public List<RoomManager> spawnedRooms;
     List<RoomManager> visitedRooms;
     NavigationBaker navBaker;
     AudioSource musicSource;
@@ -105,9 +105,8 @@ public class GameManager : MonoBehaviour
         finalTime = GameObject.Find("FinalTime").GetComponent<TextMeshProUGUI>();
         finalRooms = GameObject.Find("FinalRooms").GetComponent<TextMeshProUGUI>();
         scoreThresholdText = GameObject.Find("ThresholdTip").GetComponent<TextMeshProUGUI>();
+        musicSource = GameObject.Find("InGameMusic").GetComponent<AudioSource>();
 
-        if (GameObject.Find("Music") != null)
-            musicSource = GameObject.Find("Music").GetComponent<AudioSource>();
 
         visitedRooms = new List<RoomManager>();
         spawnedRooms = new List<RoomManager>();
@@ -145,17 +144,40 @@ public class GameManager : MonoBehaviour
         if (isTutorial)
             PlayerPrefs.SetInt("SLAMMA_HAS_PLAYED_TUTORIAL", 1);
 
+        for (int i = spawnedRooms.Count - 1; i >= 0; i--)
+            spawnedRooms[i].DeleteRoom(-1);
+        spawnedRooms.Clear();
+
         if (isTutorial)
-            Instantiate(tutorialRoomPrefab);
+            spawnedRooms.Add(Instantiate(tutorialRoomPrefab).GetComponent<RoomManager>());
         else
-            Instantiate(mainRoomPrefab);
+            spawnedRooms.Add(Instantiate(mainRoomPrefab).GetComponent<RoomManager>());
 
         Cursor.lockState = CursorLockMode.Locked;
-        hud.SetActive(true);
-        LoadVolumeFromPlayerPrefs();
+
         fadeAnimator.Play("BlackFadeIn", 0, 0);
-        Destroy(titleScreenRoom.gameObject);
+        if (titleScreenRoom.gameObject != null)
+        {
+            ply.GetReferences();
+            Destroy(titleScreenRoom.gameObject);
+            LoadVolumeFromPlayerPrefs();
+        }
+
+        if (musicSource != null && !musicSource.isPlaying)
+            musicSource.Play();
+
+        timerRunning = false;
+        runtime = 0;
+        score = 0;
+        ply.health = 3;
+        ply.doorCharges = 0;
+        timerText.text = "";
+        attackDescriptionText.text = "";
+        scoreMultiplierText.text = "1x";
+        displayedScore = 0;
+        
         ply.states.canMove = true;
+        SetPausedState(false);
         initialized = true;
     }
 
@@ -184,13 +206,13 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
-        StartCoroutine(LoadLevel(3));
+        StartCoroutine(LoadLevel(false));
     }
 
     public void LoadTutorial()
     {
         PlayerPrefs.SetInt("SLAMMA_HAS_PLAYED_TUTORIAL", 0);
-        StartCoroutine(LoadLevel(2));
+        StartCoroutine(LoadLevel(true));
     }
 
     public void BakeNavigation()
@@ -198,7 +220,7 @@ public class GameManager : MonoBehaviour
         navBaker.RebuildNavMesh();
     }
 
-    IEnumerator LoadLevel(int levelIndex)
+    IEnumerator LoadLevel(bool isTutorial)
     {
         if (loadingLevel)
             yield break;
@@ -208,11 +230,17 @@ public class GameManager : MonoBehaviour
         fadeAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
         fadeAnimator.Play("BlackFadeOut");
         yield return new WaitForSecondsRealtime(0.8f);
-        if (musicSource != null && !musicSource.isPlaying)
-            musicSource.Play();
 
+        ply.transform.localPosition = new Vector3(-5.25f, 1.5f, 15.25f);
+        ply.transform.localRotation = Quaternion.identity;
+        
         Time.timeScale = 1;
-        Application.LoadLevel(levelIndex);
+        loadingLevel = false;
+        GameObject.Find("DeathScreen").GetComponent<Image>().color = new Color(1, 0, 0, 0f);
+        FindObjectOfType<VHSPostProcessEffect>().Initialize();
+        resultsScreen.anchoredPosition = Vector2.up * 2000;
+        showingResults = false;
+        InitializePlayer(isTutorial);
     }
 
     public void SetPausedState(bool paused)
@@ -262,7 +290,7 @@ public class GameManager : MonoBehaviour
         roomsCleared++;
 
         // Check if we should have the exit sign appear
-        if (score >= scoreThreshold && r.anchors[0] != null && anchor != 1 && Random.Range(0, 1f) >= 0.5f)
+        if (score >= scoreThreshold && r.anchors[0] != null && anchor != 1 && Random.Range(0, 1f) >= 0.3f)
         {
             exitRoom = r;
             r.SpawnExitSign();
@@ -364,7 +392,7 @@ public class GameManager : MonoBehaviour
         currentComboPoints += amount;
         attackDescriptionText.text = description;
         attackDescriptionText.fontSize = 55;
-        if (currentComboPoints > 200 * Mathf.Pow(scoreMultiplier, 1.1f))
+        if (currentComboPoints > 225 * Mathf.Pow(scoreMultiplier, 1.1f))
         {
             scoreMultiplierText.fontSize = 90;
             currentComboPoints = 0;
@@ -383,7 +411,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator ShowAttackDescription()
     {
-        yield return new WaitForSeconds(7f - (scoreMultiplier * 0.5f));
+        yield return new WaitForSeconds(7f - (scoreMultiplier * 0.66f));
         attackDescriptionText.text = "";
         currentComboPoints = 0;
         scoreMultiplier = 1;

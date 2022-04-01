@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class FootCollider : MonoBehaviour
 {
@@ -60,6 +61,8 @@ public class FootCollider : MonoBehaviour
             }
             hitData.isGrounded = false;
         }
+
+        cols = cols.Where(item => item != null).ToList();
     }
 
     IEnumerator CoyoteTime()
