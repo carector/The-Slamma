@@ -73,6 +73,7 @@ public class GameManager : MonoBehaviour
     Slider sfxSlider;
     Slider musicSlider;
     Slider ambSlider;
+    Slider mouseSensitivitySlider;
     public Animator fadeAnimator;
     RoomManager exitRoom;
 
@@ -85,9 +86,10 @@ public class GameManager : MonoBehaviour
         ng = FindObjectOfType<MedalScoreboardUtility>();
 
         hud = GameObject.Find("HUD");
-        sfxSlider = GameObject.Find("SFXSlider").GetComponent<Slider>();
-        ambSlider = GameObject.Find("AmbienceSlider").GetComponent<Slider>();
-        musicSlider = GameObject.Find("MusicSlider").GetComponent<Slider>();
+        sfxSlider = GameObject.Find("SFXSliderHUD").GetComponent<Slider>();
+        ambSlider = GameObject.Find("AmbienceSliderHUD").GetComponent<Slider>();
+        musicSlider = GameObject.Find("MusicSliderHUD").GetComponent<Slider>();
+        mouseSensitivitySlider = GameObject.Find("MouseSensitivitySliderHUD").GetComponent<Slider>();
 
         timerText = GameObject.Find("RoomNumberText").GetComponent<TextMeshProUGUI>();
         scoreText = GameObject.Find("PointsText").GetComponent<TextMeshProUGUI>();
@@ -175,7 +177,7 @@ public class GameManager : MonoBehaviour
         attackDescriptionText.text = "";
         scoreMultiplierText.text = "1x";
         displayedScore = 0;
-        
+
         ply.states.canMove = true;
         SetPausedState(false);
         initialized = true;
@@ -202,6 +204,15 @@ public class GameManager : MonoBehaviour
             ng.UnlockMedal(68302);
         if (score >= 10000)
             ng.UnlockMedal(68303);
+    }
+
+    public void UpdateMouseSensitivity()
+    {
+        if (ply != null)
+        {
+            ply.movement.mouseSensitivity = mouseSensitivitySlider.value;
+            PlayerPrefs.SetFloat("SLAMMA_MOUSE_SENS", ply.movement.mouseSensitivity);
+        }
     }
 
     public void Restart()
@@ -233,7 +244,7 @@ public class GameManager : MonoBehaviour
 
         ply.transform.localPosition = new Vector3(-5.25f, 1.5f, 15.25f);
         ply.transform.localRotation = Quaternion.identity;
-        
+
         Time.timeScale = 1;
         loadingLevel = false;
         GameObject.Find("DeathScreen").GetComponent<Image>().color = new Color(1, 0, 0, 0f);
@@ -468,14 +479,18 @@ public class GameManager : MonoBehaviour
     {
         if (PlayerPrefs.HasKey("SLAMMA_AMB_VOLUME"))
         {
+            if (!PlayerPrefs.HasKey("SLAMMA_MOUSE_SENS"))
+                PlayerPrefs.SetFloat("SLAMMA_MOUSE_SENS", 1.65f);
             musicSlider.value = PlayerPrefs.GetInt("SLAMMA_MUS_VOLUME") / 4;
             sfxSlider.value = PlayerPrefs.GetInt("SLAMMA_SFX_VOLUME") / 4;
             ambSlider.value = PlayerPrefs.GetInt("SLAMMA_AMB_VOLUME") / 4;
+            mouseSensitivitySlider.value = PlayerPrefs.GetFloat("SLAMMA_MOUSE_SENS");
         }
 
         UpdateMusicVolume();
         UpdateSFXVolume();
         UpdateAmbienceVolume();
+        UpdateMouseSensitivity();
     }
 
 

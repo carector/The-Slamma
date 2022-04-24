@@ -209,7 +209,7 @@ public class Enemy : MonoBehaviour
                 nav.Warp(pos);
         }
 
-        print("Moving towards " + t.name);
+        //print("Moving towards " + t.name);
     }
 
     public float GetAngleToPlayer()

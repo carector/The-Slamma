@@ -11,7 +11,8 @@ public class TitleScreenHandler : MonoBehaviour
     Slider sfxSlider;
     Slider musicSlider;
     Slider ambSlider;
-
+    Slider mouseSlider;
+    PlayerController ply;
     Animator fadeAnimator;
     Animator anim;
     AudioSource audio;
@@ -35,9 +36,12 @@ public class TitleScreenHandler : MonoBehaviour
         sfxSlider = GameObject.Find("SFXSlider").GetComponent<Slider>();
         ambSlider = GameObject.Find("AmbienceSlider").GetComponent<Slider>();
         musicSlider = GameObject.Find("MusicSlider").GetComponent<Slider>();
-        LoadVolumeFromPlayerPrefs();
+        mouseSlider = GameObject.Find("MouseSensitivitySlider").GetComponent<Slider>();
         fadeAnimator = GameObject.Find("FadeScreenTitle").GetComponent<Animator>();
         fadeAnimator.Play("BlackFadeIn");
+        ply = FindObjectOfType<PlayerController>();
+
+        LoadValuesFromPlayerPrefs();
     }
 
     private void Update()
@@ -105,18 +109,31 @@ public class TitleScreenHandler : MonoBehaviour
         mixer.SetFloat("AmbienceVolume", volume);
     }
 
-    public void LoadVolumeFromPlayerPrefs()
+    public void UpdateMouseSensitivity()
+    {
+        if (mouseSlider == null)
+            return;
+
+        ply.movement.mouseSensitivity = mouseSlider.value;
+        PlayerPrefs.SetFloat("SLAMMA_MOUSE_SENS", ply.movement.mouseSensitivity);
+    }
+
+    public void LoadValuesFromPlayerPrefs()
     {
         if (PlayerPrefs.HasKey("SLAMMA_AMB_VOLUME"))
         {
+            if (!PlayerPrefs.HasKey("SLAMMA_MOUSE_SENS"))
+                PlayerPrefs.SetFloat("SLAMMA_MOUSE_SENS", 1.65f);
             musicSlider.value = PlayerPrefs.GetInt("SLAMMA_MUS_VOLUME") / 4;
             sfxSlider.value = PlayerPrefs.GetInt("SLAMMA_SFX_VOLUME") / 4;
             ambSlider.value = PlayerPrefs.GetInt("SLAMMA_AMB_VOLUME") / 4;
+            mouseSlider.value = PlayerPrefs.GetFloat("SLAMMA_MOUSE_SENS");
         }
 
         UpdateMusicVolume();
         UpdateSFXVolume();
         UpdateAmbienceVolume();
+        UpdateMouseSensitivity();
     }
 
 

@@ -2,24 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class LoadMainLevel : MonoBehaviour
 {
+    Text focusText;
+    VideoPlayer vp;
+
     // Start is called before the first frame update
     void Start()
     {
-        DontDestroyOnLoad(this.gameObject);
-
-        if (!PlayerPrefs.HasKey("SLAMMA_HAS_PLAYED_TUTORIAL") || PlayerPrefs.GetInt("SLAMMA_HAS_PLAYED_TUTORIAL") == 0)
-            StartCoroutine(Load(2));
-        else
-            StartCoroutine(Load(3));
+        focusText = FindObjectOfType<Text>();
+        vp = FindObjectOfType<VideoPlayer>();
+        //focusText.color = Color.clear;
+        StartCoroutine(WaitAndLoad());
     }
-
-    IEnumerator Load(int index)
+    IEnumerator WaitAndLoad()
     {
-        AsyncOperation asyncLoadLevel = SceneManager.LoadSceneAsync(index, LoadSceneMode.Single);
-        while (!asyncLoadLevel.isDone)
-            yield return null;
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            while (!Input.GetMouseButtonDown(0))
+            {
+                focusText.color = Color.white;
+                yield return null;
+            }
+        }
+
+        focusText.color = Color.clear;
+        vp.url = System.IO.Path.Combine(Application.streamingAssetsPath, "Logo.mp4");
+        vp.Play();
+        yield return new WaitForSeconds(4.25f);
+        SceneManager.LoadScene(1);
     }
 }

@@ -337,7 +337,7 @@ PlayerSettings:
   m_TemplateCustomTags:
     BACKGROUND: black
     OPTIMIZE_FOR_PIXEL_ART: false
-    SCALE_TO_FIT: true
+    SCALE_TO_FIT: false
   mobileMTRendering:
     Android: 1
     iPhone: 1
