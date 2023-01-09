@@ -60,7 +60,7 @@ TextureImporter:
       213: 3298155551090151099
     second: Cop_9
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -80,6 +80,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -90,7 +92,7 @@ TextureImporter:
     serializedVersion: 2
     filterMode: 0
     aniso: 2
-    mipBias: -100
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 0
@@ -111,10 +113,14 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -188,6 +194,18 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Server
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -207,7 +225,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 62aca283457c43b30800000000000000
-      internalID: 4266253911560210982
+      internalID: 6628730159906067560
       vertices: []
       indices: 
       edges: []
@@ -228,7 +246,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: b3f5b6f69fe1688c0800000000000000
-      internalID: -3997473562579738821
+      internalID: 6682727517878122878
       vertices: []
       indices: 
       edges: []
@@ -249,7 +267,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: f737d288cf1a71740800000000000000
-      internalID: 5122741207145739135
+      internalID: 5987112701281333008
       vertices: []
       indices: 
       edges: []
@@ -270,7 +288,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: a4787b48b14101f70800000000000000
-      internalID: 9155840150867511114
+      internalID: 8378104458216064153
       vertices: []
       indices: 
       edges: []
@@ -291,7 +309,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: b35a0de570f4c21e0800000000000000
-      internalID: -2221313623126399685
+      internalID: 17399901838026197
       vertices: []
       indices: 
       edges: []
@@ -312,7 +330,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: bafb377846e69cdf0800000000000000
-      internalID: -159474933746647125
+      internalID: 5053180274092744718
       vertices: []
       indices: 
       edges: []
@@ -333,7 +351,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: ce491874fb98cc3d0800000000000000
-      internalID: -3185019381826349844
+      internalID: 4667172530114993935
       vertices: []
       indices: 
       edges: []
@@ -354,7 +372,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 350b93aaf2937a8e0800000000000000
-      internalID: -1682313058917437357
+      internalID: 6487814471245413006
       vertices: []
       indices: 
       edges: []
@@ -375,7 +393,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 0bde10462fe76a5a0800000000000000
-      internalID: -6510376631792439888
+      internalID: -8535283610687501924
       vertices: []
       indices: 
       edges: []
@@ -411,6 +429,17 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Cop_0: 6628730159906067560
+      Cop_7: 6487814471245413006
+      Cop_4: 17399901838026197
+      Cop_3: 8378104458216064153
+      Cop_8: -8535283610687501924
+      Cop_9: 3298155551090151099
+      Cop_2: 5987112701281333008
+      Cop_6: 4667172530114993935
+      Cop_5: 5053180274092744718
+      Cop_1: 6682727517878122878
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

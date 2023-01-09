@@ -66,7 +66,7 @@ TextureImporter:
       213: 7471440230138878883
     second: MurphWalk_5
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -86,6 +86,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -96,7 +98,7 @@ TextureImporter:
     serializedVersion: 2
     filterMode: 0
     aniso: 2
-    mipBias: -100
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 0
@@ -117,10 +119,14 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -194,6 +200,18 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Server
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -213,7 +231,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: a7e8d864fc4053090800000000000000
-      internalID: -8055527070193840518
+      internalID: 1350406129453059426
       vertices: []
       indices: 
       edges: []
@@ -234,7 +252,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: ad6daf8571edfef20800000000000000
-      internalID: 3454223631074907866
+      internalID: 5991185553063862137
       vertices: []
       indices: 
       edges: []
@@ -255,7 +273,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 9119fe3d4f1ef21f0800000000000000
-      internalID: -1067386145019555559
+      internalID: 8730667039019223159
       vertices: []
       indices: 
       edges: []
@@ -276,7 +294,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: c2b43086523707da0800000000000000
-      internalID: -5949128503260394708
+      internalID: -6664627547865218894
       vertices: []
       indices: 
       edges: []
@@ -297,7 +315,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: a2637b8ba4aeff3f0800000000000000
-      internalID: -864714996784351702
+      internalID: -7360961316643649441
       vertices: []
       indices: 
       edges: []
@@ -318,7 +336,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 3ab9dfdcd43efa760800000000000000
-      internalID: 7471440230138878883
+      internalID: 7132704890161942336
       vertices: []
       indices: 
       edges: []
@@ -354,6 +372,14 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      MurphWalk_5: 7132704890161942336
+      MurphWalk_0: 1350406129453059426
+      MurphWalk_3: -6664627547865218894
+      MurphWalk_4: -7360961316643649441
+      MurphWalk_1: 5991185553063862137
+      MurphWalk_6: -664882085011162960
+      MurphWalk_2: 8730667039019223159
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

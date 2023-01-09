@@ -29,8 +29,8 @@ public class GameManager : MonoBehaviour
     RectTransform pauseScreen;
     RectTransform hudScreen;
     RectTransform resultsScreen;
-    MedalScoreboardUtility ng;
     PlayerController ply;
+    NewgroundsManager ng;
 
     public AudioMixer mixer;
     public int score;
@@ -82,8 +82,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ng = FindObjectOfType<NewgroundsManager>();
         navBaker = GetComponent<NavigationBaker>();
-        ng = FindObjectOfType<MedalScoreboardUtility>();
 
         hud = GameObject.Find("HUD");
         sfxSlider = GameObject.Find("SFXSliderHUD").GetComponent<Slider>();
@@ -196,6 +196,7 @@ public class GameManager : MonoBehaviour
         resultsScreen.anchoredPosition = Vector2.zero;
         hudScreen.anchoredPosition = Vector2.up * 2000;
 
+        
         ng.PostScore(11685, score);
         ng.PostScore(11686, Mathf.RoundToInt(runtime * 1000));
 
@@ -374,7 +375,7 @@ public class GameManager : MonoBehaviour
 
     public void UnlockMedal(int id)
     {
-        ng.UnlockMedal(id);
+        //ng.UnlockMedal(id);
     }
 
     public void UpdateCurrentRoom(RoomManager r)

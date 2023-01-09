@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 25456eab666c72441b80913f6e081b3d
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - RedAlert1
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: d2215f9ff8f221a408e71039c86a5e24, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

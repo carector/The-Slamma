@@ -1,0 +1,80 @@
+body {
+    padding: 0;
+    margin: 0
+}
+
+#unity-container {
+    position: absolute
+}
+
+#unity-container.unity-desktop {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%)
+}
+
+#unity-container.unity-mobile {
+    width: 100%;
+    height: 100%
+}
+
+#unity-canvas {
+    background: #0a002e;
+}
+
+.unity-mobile #unity-canvas {
+    width: 100%;
+    height: 100%
+}
+
+#unity-loading-bar {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: none
+}
+
+#unity-progress-bar-empty {
+    width: 360px;
+    height: 40px;
+    margin-top: -32px;
+    margin-left: 76px;
+    background: url('ProgressBarEmpty.png') no-repeat left
+}
+
+#unity-progress-bar-full {
+    width: 0%;
+    height: 40px;
+    margin-top: -32px;
+    background: url('ProgressBarFull.png') no-repeat left
+}
+
+#unity-footer {
+    position: relative
+}
+
+.unity-mobile #unity-footer {
+    display: none
+}
+
+#unity-warning {
+    position: absolute;
+    left: 50%;
+    top: 5%;
+    transform: translate(-50%);
+    background: white;
+    padding: 10px;
+    display: none
+}
+
+
+#custom-logo {
+    background-image: url('Logo.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    width: 512px;
+    height: 512px;
+}
