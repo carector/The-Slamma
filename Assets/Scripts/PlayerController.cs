@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
+using Unity.XR.OpenVR;
 
 public class PlayerController : MonoBehaviour
 {
@@ -65,6 +66,8 @@ public class PlayerController : MonoBehaviour
     Animator legAnimations;
     Animator camTiltAnimations;
     DoorScript pulledDoor = null;
+    SpriteRenderer hand;
+    Transform arm;
 
     float xAxisClamp;
     bool swinging;
@@ -79,6 +82,8 @@ public class PlayerController : MonoBehaviour
 
     public void GetReferences()
     {
+        Application.targetFrameRate = 60;
+
         audio = GetComponent<AudioSource>();
         legAnimations = GameObject.Find("PlayerHUD").GetComponent<Animator>();
         gm = FindObjectOfType<GameManager>();
@@ -87,6 +92,9 @@ public class PlayerController : MonoBehaviour
         camHolder = GameObject.Find("CameraHolder").transform;
         camAnimations = GameObject.Find("CameraAnimations").GetComponent<Animator>();
         camTiltAnimations = GameObject.Find("CameraTilt").GetComponent<Animator>();
+        hand = transform.GetChild(2).GetComponent<SpriteRenderer>();
+        arm = transform.GetChild(3);
+
         gm.globalCameraReference = camHolder;
         inputs = new PlayerInputValues();
     }
@@ -117,6 +125,8 @@ public class PlayerController : MonoBehaviour
 
     void UpdateButtonInputs()
     {
+        bool updateArm = false;
+
         if (!states.canMove)
             return;
 
@@ -135,13 +145,28 @@ public class PlayerController : MonoBehaviour
 
             if (Input.GetMouseButton(0) && pulledDoor != null)
             {
+                updateArm = true;
                 pulledDoor.RotateTowardsShutPosition(transform.position + transform.forward);
+
+                // Auto-release door if we get too far away
+                // or if we look away from the door
+                Vector3 dir = (pulledDoor.transform.position - camHolder.transform.position).normalized;
+
+                if (Vector3.Distance(transform.position, pulledDoor.transform.position) > 5.5f || Vector3.Angle(dir, transform.forward) > 100)
+                {
+                    audio.PlayOneShot(sfx[UnityEngine.Random.Range(0, 3)]);
+                    pulledDoor.SlamDoor();
+                    pulledDoor = null;
+                }
             }
+            else
+                updateArm = false;
         }
 
         // Kick door / swing held door
         if (Input.GetMouseButtonUp(0))
         {
+            updateArm = false;
             if (!holdingDoor && !kicking)
             {
                 legAnimations.Play("Kick");
@@ -211,11 +236,29 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+
+        if (updateArm && pulledDoor != null)
+        {
+            hand.gameObject.SetActive(true);
+            arm.gameObject.SetActive(true);
+            hand.transform.parent = null;
+            arm.transform.parent = null;
+            hand.transform.position = Vector3.Lerp(hand.transform.position, pulledDoor.GetHandlePosition(), 0.25f);
+            arm.transform.position = hand.transform.position + new Vector3(0, -0.57f, 0);
+        }
+        else
+        {
+            hand.transform.position = camAnimations.transform.position - transform.up * 5;
+            arm.transform.position = hand.transform.position;
+            hand.gameObject.SetActive(false);
+            arm.gameObject.SetActive(false);
+        }
+
     }
 
     DoorScript CheckForDoorRaycast()
     {
-        int mask = ~(1 << 8 & 1 << 9);
+        int mask = ~(1 << 8 & 1 << 9 & 1 << 11);
         RaycastHit[] hits;
         hits = Physics.SphereCastAll(camHolder.position, 0.5f, camHolder.forward, 4, mask);
         foreach (RaycastHit hit in hits)
@@ -250,7 +293,7 @@ public class PlayerController : MonoBehaviour
             PlaySFX(UnityEngine.Random.Range(0, 3));
             doorCharges--;
         }
-        else if(health > 0)
+        else if (health > 0)
         {
             PlaySFX(4);
             health--;
@@ -278,7 +321,7 @@ public class PlayerController : MonoBehaviour
     }
 
     IEnumerator TakeDamageCoroutine()
-    {   
+    {
         states.takingDamage = true;
         yield return new WaitForSeconds(0.75f);
         states.takingDamage = false;
@@ -302,7 +345,7 @@ public class PlayerController : MonoBehaviour
         foreach (RaycastHit hit in hits)
         {
             if (hit.transform.tag == "Enemy")
-                hit.transform.GetComponent<Enemy>().GetHitByAttack((hit.transform.position - transform.position).normalized*50, true, false);
+                hit.transform.GetComponent<Enemy>().GetHitByAttack((hit.transform.position - transform.position).normalized * 50, true, false);
             if (hit.transform.tag == "Ground")
             {
                 gm.ScreenShake();

@@ -17,6 +17,7 @@ public class DoorScript : MonoBehaviour
     Rigidbody rb;
     HingeJoint joint;
     GameManager gm;
+    Transform handle;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +26,7 @@ public class DoorScript : MonoBehaviour
         gm = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
         ply = FindObjectOfType<PlayerController>();
+        handle = transform.GetChild(1);
 
         if (transform.parent.parent != null)
             transform.parent.parent = null;
@@ -47,6 +49,11 @@ public class DoorScript : MonoBehaviour
     {
         Vector3 dir = point - (transform.position + transform.right);
         rb.velocity = Vector3.Lerp(rb.velocity, dir * 7.5f, 1f);
+    }
+
+    public Vector3 GetHandlePosition()
+    {
+        return handle.position;
     }
 
     public void ResetDoor() // Resets to pre-kicked-down state
